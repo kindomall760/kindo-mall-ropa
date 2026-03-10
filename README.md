@@ -1,0 +1,1 @@
+# kindo-mall-ropa
