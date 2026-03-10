@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kindo Mall – Catálogo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Palatino Linotype',Palatino,serif;background:#f8f6f2;min-height:100vh;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+.card{animation:fadeUp .4s ease both;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.07);cursor:pointer;position:relative;transition:transform .2s,box-shadow .2s;}
+.card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,0.13);}
+.card:hover .card-overlay{opacity:1!important;}
+.card-img{transition:transform .4s ease;width:100%;height:280px;object-fit:cover;display:block;}
+.card:hover .card-img{transform:scale(1.04);}
+.btn-gold{background:#14110f;color:#d4b896;border:none;border-radius:50px;font-family:inherit;font-size:13px;cursor:pointer;letter-spacing:1px;padding:11px 26px;transition:opacity .2s;}
+.btn-gold:hover{opacity:.85;}
+.btn-gold:disabled{opacity:.5;cursor:not-allowed;}
+.btn-light{background:#f0ece6;color:#8a7d6e;border:none;border-radius:50px;font-family:inherit;font-size:13px;cursor:pointer;padding:11px 20px;}
+.btn-danger{background:#fee2e2;color:#dc2626;border:none;border-radius:50px;font-family:inherit;font-size:12px;cursor:pointer;padding:8px 14px;}
+.filter-btn{padding:7px 18px;border-radius:50px;font-size:12px;letter-spacing:1px;cursor:pointer;font-family:inherit;border:2px solid #e5e0d8;background:#fff;color:#8a7d6e;transition:all .2s;}
+.filter-btn.active{border-color:#14110f;background:#14110f;color:#d4b896;}
+.field-label{font-size:10px;color:#8a7d6e;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;display:block;}
+.field-input{width:100%;padding:10px 14px;border:1.5px solid #e5e0d8;border-radius:10px;font-family:inherit;font-size:13px;outline:none;background:#fff;transition:border-color .2s;}
+.field-input:focus{border-color:#d4b896;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;animation:fadeIn .2s;}
+.modal-box{background:#fff;border-radius:20px;max-width:500px;width:100%;max-height:92vh;overflow-y:auto;padding:36px 30px;}
+.badge{display:inline-block;background:#14110f;color:#d4b896;font-size:9px;letter-spacing:2px;padding:4px 10px;border-radius:50px;text-transform:uppercase;}
+.spinner{width:16px;height:16px;border:2px solid rgba(212,184,150,0.3);border-top-color:#d4b896;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#14110f;color:#d4b896;padding:12px 28px;border-radius:50px;font-size:13px;letter-spacing:1px;z-index:9999;display:none;animation:fadeIn .3s;white-space:nowrap;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:#f0ece6;}::-webkit-scrollbar-thumb{background:#d4b896;border-radius:3px;}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;padding:20px 24px 40px;max-width:1200px;margin:0 auto;}
+#admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;padding:24px;max-width:1400px;margin:0 auto;}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#14110f 0%,#2a2118 100%);}
+
+/* Upload zone */
+#upload-zone{border:2px dashed #e5e0d8;border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:#faf9f7;transition:border-color .2s;}
+#upload-zone:hover{border-color:#d4b896;}
+
+/* Progress */
+.progress-wrap{width:100%;background:#f0ece6;border-radius:50px;height:8px;margin-top:10px;overflow:hidden;display:none;}
+.progress-bar{height:8px;background:linear-gradient(90deg,#d4b896,#14110f);border-radius:50px;width:0%;transition:width .2s;}
+
+/* IMGBB badge */
+.imgbb-badge{display:inline-flex;align-items:center;gap:5px;background:#fff3cd;color:#856404;font-size:10px;padding:4px 10px;border-radius:50px;letter-spacing:1px;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="login-screen" style="display:none;">
+  <div style="background:#fff;border-radius:24px;padding:44px 36px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+    <div style="font-size:10px;color:#d4b896;letter-spacing:6px;text-transform:uppercase;margin-bottom:8px;">Acceso Administrador</div>
+    <div style="font-size:36px;color:#14110f;font-style:italic;margin-bottom:4px;">Kindo Mall</div>
+    <div style="width:50px;height:1px;background:#d4b896;margin:14px auto 28px;"></div>
+    <div style="margin-bottom:16px;text-align:left;"><label class="field-label">Usuario</label><input id="login-user" class="field-input" type="text" value="admin"/></div>
+    <div style="margin-bottom:24px;text-align:left;"><label class="field-label">Contraseña</label><input id="login-pass" class="field-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div id="login-error" style="color:#dc2626;font-size:12px;margin-bottom:12px;display:none;">❌ Contraseña incorrecta.</div>
+    <button class="btn-gold" style="width:100%;padding:13px;" onclick="doLogin()">Entrar al Panel</button>
+    <div style="margin-top:16px;"><button onclick="showPublic()" style="background:none;border:none;color:#8a7d6e;font-family:inherit;font-size:12px;cursor:pointer;text-decoration:underline;">← Ver catálogo público</button></div>
+  </div>
+</div>
+
+<!-- ═══ VISTA PÚBLICA ═══ -->
+<div id="public-view">
+  <div style="background:#14110f;padding:36px 24px 28px;text-align:center;position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(212,184,150,0.07),transparent 60%);pointer-events:none;"></div>
+    <div style="font-size:10px;letter-spacing:8px;color:#d4b896;text-transform:uppercase;margin-bottom:10px;">Boutique Digital</div>
+    <div style="font-size:52px;color:#f5f0eb;font-style:italic;letter-spacing:4px;line-height:1;">Kindo Mall</div>
+    <div style="width:80px;height:1px;background:linear-gradient(90deg,transparent,#d4b896,transparent);margin:14px auto;"></div>
+    <div id="pub-count" style="font-size:11px;color:#8a7d6e;letter-spacing:4px;text-transform:uppercase;">Cargando...</div>
+    <div style="position:absolute;top:12px;right:16px;">
+      <button onclick="showLogin()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#8a7d6e;font-family:inherit;font-size:10px;letter-spacing:1px;padding:6px 14px;border-radius:50px;cursor:pointer;">⚙ Admin</button>
+    </div>
+  </div>
+  <div style="max-width:1200px;margin:0 auto;padding:20px 24px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+    <input id="pub-search" placeholder="🔍  Buscar producto o referencia..." oninput="renderPublic()" style="flex:1;min-width:180px;padding:11px 18px;border:1.5px solid #e5e0d8;border-radius:50px;font-family:inherit;font-size:13px;outline:none;color:#333;background:#fff;"/>
+  </div>
+  <div id="pub-filtros" style="max-width:1200px;margin:0 auto;padding:14px 24px 6px;display:flex;gap:8px;flex-wrap:wrap;"></div>
+  <div id="grid"></div>
+  <div style="text-align:center;padding:32px 16px;color:#b0a598;font-size:10px;letter-spacing:4px;text-transform:uppercase;border-top:1px solid #ede9e3;margin-top:10px;">Kindo Mall © 2026 · Todos los derechos reservados</div>
+</div>
+
+<!-- ═══ VISTA ADMIN ═══ -->
+<div id="admin-view" style="display:none;">
+  <div style="background:#14110f;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-style:italic;font-size:18px;color:#f5f0eb;">Kindo Mall</span>
+      <span style="background:rgba(212,184,150,0.2);padding:3px 10px;border-radius:50px;font-size:10px;color:#d4b896;letter-spacing:2px;">ADMIN</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span id="admin-prod-count" style="font-size:11px;color:#8a7d6e;"></span>
+      <button onclick="openAdd()" style="background:#d4b896;color:#14110f;border:none;border-radius:50px;font-family:inherit;font-size:12px;cursor:pointer;padding:9px 20px;letter-spacing:1px;font-weight:bold;">+ Agregar Producto</button>
+      <button onclick="logOut()" style="background:rgba(255,255,255,0.08);color:#8a7d6e;border:1px solid rgba(255,255,255,0.15);border-radius:50px;font-family:inherit;font-size:11px;cursor:pointer;padding:8px 16px;">Salir</button>
+    </div>
+  </div>
+  <div style="background:#1e1a17;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:1px solid #3a342e;">
+    <div style="color:#f5f0eb;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Gestión de Productos</div>
+    <input id="admin-search" placeholder="Buscar..." oninput="renderAdmin()" style="padding:8px 16px;border:1.5px solid #3a342e;border-radius:50px;font-family:inherit;font-size:12px;outline:none;background:#14110f;color:#f5f0eb;min-width:200px;"/>
+  </div>
+  <div id="admin-filtros" style="background:#1e1a17;padding:8px 24px 12px;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #3a342e;"></div>
+  <div id="admin-grid"></div>
+</div>
+
+<!-- ═══ MODAL DETALLE ═══ -->
+<div id="modal-detail" style="display:none;" class="overlay" onclick="if(event.target===this)this.style.display='none'">
+  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;max-width:820px;width:100%;display:flex;flex-wrap:wrap;overflow:hidden;max-height:92vh;">
+    <div style="width:55%;min-width:260px;background:#f0ece6;position:relative;">
+      <img id="d-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;min-height:360px;display:block;"/>
+      <div id="d-noimg" style="display:none;width:100%;min-height:360px;align-items:center;justify-content:center;font-size:80px;">👗</div>
+    </div>
+    <div style="flex:1;padding:36px 30px;display:flex;flex-direction:column;justify-content:center;min-width:240px;overflow-y:auto;">
+      <div id="d-badge" style="font-size:9px;color:#d4b896;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;"></div>
+      <div id="d-name" style="font-size:28px;color:#14110f;font-style:italic;margin-bottom:6px;"></div>
+      <div style="width:40px;height:1.5px;background:#d4b896;margin-bottom:18px;"></div>
+      <div id="d-ref" style="font-size:13px;color:#64748b;margin-bottom:6px;"></div>
+      <div id="d-tallas" style="font-size:13px;color:#64748b;margin-bottom:6px;"></div>
+      <div id="d-precio" style="font-size:22px;color:#14110f;font-weight:bold;margin-bottom:16px;"></div>
+      <div id="d-colores" style="margin-bottom:28px;"></div>
+      <button class="btn-light" onclick="document.getElementById('modal-detail').style.display='none'">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL FORMULARIO ADMIN ═══ -->
+<div id="modal-form" style="display:none;" class="overlay" onclick="if(event.target===this)document.getElementById('modal-form').style.display='none'">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div id="form-badge" style="font-size:10px;color:#d4b896;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;">Kindo Mall · Nuevo Producto</div>
+    <div id="form-title" style="font-size:24px;color:#14110f;font-style:italic;margin-bottom:22px;">Agregar al Catálogo</div>
+
+    <!-- IMAGEN -->
+    <div style="margin-bottom:18px;">
+      <label class="field-label">Foto del Producto</label>
+      <div id="upload-zone" onclick="document.getElementById('file-input').click()">
+        <img id="img-preview" src="" style="display:none;width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:12px;" onerror="this.style.display='none'"/>
+        <div id="upload-hint">
+          <div style="font-size:32px;margin-bottom:6px;">📸</div>
+          <div style="color:#8a7d6e;font-size:14px;font-weight:bold;">Haz clic para subir foto</div>
+          <div style="color:#b0a598;font-size:11px;margin-top:4px;">La foto se subirá a ImgBB automáticamente</div>
+        </div>
+        <input id="file-input" type="file" accept="image/*" onchange="handleFile(event)" style="display:none;"/>
+      </div>
+      <!-- Progress -->
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div id="upload-status" style="font-size:11px;color:#8a7d6e;margin-top:6px;text-align:center;display:none;"></div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+        <div style="flex:1;height:1px;background:#e5e0d8;"></div>
+        <span style="font-size:11px;color:#b0a598;">o pega una URL</span>
+        <div style="flex:1;height:1px;background:#e5e0d8;"></div>
+      </div>
+      <input id="f-img" class="field-input" style="margin-top:8px;" placeholder="https://..." oninput="updatePreviewUrl()"/>
+    </div>
+
+    <!-- CAMPOS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div><label class="field-label">Nombre *</label><input id="f-name" class="field-input" placeholder="Ej: Short MB-640"/></div>
+      <div><label class="field-label">Referencia *</label><input id="f-ref" class="field-input" placeholder="Ej: MB-640"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div><label class="field-label">Tallas</label><input id="f-tallas" class="field-input" placeholder="Ej: S – XL"/></div>
+      <div><label class="field-label">Precio (RD$)</label><input id="f-precio" class="field-input" placeholder="Ej: 850"/></div>
+    </div>
+    <div style="margin-bottom:14px;"><label class="field-label">Colores (separados por coma)</label><input id="f-colores" class="field-input" placeholder="Ej: Negro, Blanco, Rosa"/></div>
+    <div style="margin-bottom:20px;">
+      <label class="field-label">Categoría</label>
+      <select id="f-tipo" class="field-input">
+        <option>Top</option><option>Crop Top</option><option>Short</option><option>Pantalón</option><option>Blusa</option><option>Vestido</option><option>Conjunto</option><option>Otro</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-gold" style="flex:1;" id="submit-btn" onclick="handleSubmit()">Agregar Producto</button>
+      <button class="btn-light" onclick="document.getElementById('modal-form').style.display='none'">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FIREBASE + IMGBB ═══ -->
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy }
+                             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ══ CONFIGURACIÓN — reemplaza TU_API_KEY_IMGBB con tu key ══
+const IMGBB_KEY = "f3951111ba289e124618ce07dccc12ee";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAkHzFiHPpIQYBNXxrct0iKrwYnEH4Zuzw",
+  authDomain: "base-de-datos-kindo-malll.firebaseapp.com",
+  projectId: "base-de-datos-kindo-malll",
+  storageBucket: "base-de-datos-kindo-malll.firebasestorage.app",
+  messagingSenderId: "829727067662",
+  appId: "1:829727067662:web:21d6472cb6602d37f0b65f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ══ ESTADO ══
+const PASS = "admin123";
+const COLOR_MAP = {negro:"#1a1a1a",blanco:"#f5f0eb",rosa:"#f9a8d4",celeste:"#7dd3fc",beige:"#d4b896",azul:"#60a5fa",crema:"#fef3c7",gris:"#9ca3af",rojo:"#f87171",verde:"#6ee7b7",morado:"#c084fc",naranja:"#fb923c",amarillo:"#fde68a",cafe:"#92400e",marino:"#1e3a5f"};
+let products=[], editId=null, pubFilter="Todos", admFilter="Todos", uploadedUrl="";
+
+// ══ HELPERS ══
+const $=id=>document.getElementById(id);
+function getColorDot(c){const k=c.toLowerCase().trim();for(const m in COLOR_MAP)if(k.includes(m))return COLOR_MAP[m];return"#cbd5e1";}
+function colorDots(col){return(col||"").split(",").map(c=>c.trim()).filter(Boolean).map(c=>`<div title="${c}" style="width:16px;height:16px;border-radius:50%;background:${getColorDot(c)};border:1.5px solid #e5e0d8;flex-shrink:0;"></div>`).join("");}
+function toast(msg,ms=3000){const t=$("toast");t.textContent=msg;t.style.display="block";clearTimeout(t._t);t._t=setTimeout(()=>t.style.display="none",ms);}
+
+// ══ FIRESTORE REALTIME ══
+onSnapshot(query(collection(db,"productos"),orderBy("createdAt","desc")), snap=>{
+  products=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderPublic(); renderAdmin();
+});
+
+// ══ NAVEGACIÓN ══
+window.showLogin =()=>{$("public-view").style.display="none";$("admin-view").style.display="none";$("login-screen").style.display="flex";};
+window.showPublic=()=>{$("login-screen").style.display="none";$("admin-view").style.display="none";$("public-view").style.display="block";};
+window.showAdmin =()=>{$("login-screen").style.display="none";$("public-view").style.display="none";$("admin-view").style.display="block";};
+window.doLogin=()=>{
+  if($("login-user").value.trim()==="admin"&&$("login-pass").value===PASS){
+    $("login-error").style.display="none"; showAdmin();
+  } else $("login-error").style.display="block";
+};
+window.logOut=()=>showPublic();
+
+// ══ RENDER PÚBLICO ══
+window.renderPublic=()=>{
+  const s=($("pub-search")||{value:""}).value.toLowerCase();
+  const f=products.filter(p=>(pubFilter==="Todos"||p.tipo===pubFilter)&&(!s||p.name.toLowerCase().includes(s)||p.ref.toLowerCase().includes(s)));
+  $("pub-count").textContent=products.length+" Producto"+(products.length!==1?"s":"");
+  const tipos=["Todos",...[...new Set(products.map(p=>p.tipo))].filter(Boolean)];
+  $("pub-filtros").innerHTML=tipos.map(t=>`<button class="filter-btn ${t===pubFilter?'active':''}" onclick="pubFilter='${t}';renderPublic()">${t}</button>`).join("");
+  $("grid").innerHTML=!f.length
+    ?`<div style="text-align:center;padding:80px 0;grid-column:1/-1"><div style="font-size:48px;margin-bottom:16px">🛍️</div><div style="font-size:14px;color:#8a7d6e;letter-spacing:2px">${products.length===0?"Catálogo próximamente.":"Sin resultados."}</div></div>`
+    :f.map((p,i)=>`
+    <div class="card" style="animation-delay:${i*.04}s" onclick="openDetail('${p.id}')">
+      <div style="position:relative;overflow:hidden;height:280px;background:#f0ece6;">
+        ${p.img?`<img class="card-img" src="${p.img}" alt="${p.name}" loading="lazy">`:`<div style="width:100%;height:280px;display:flex;align-items:center;justify-content:center;font-size:48px">👗</div>`}
+        <span class="badge" style="position:absolute;top:10px;left:10px">${p.tipo||""}</span>
+      </div>
+      <div style="padding:14px 16px 18px">
+        <div style="font-size:9px;color:#b0a598;letter-spacing:3px;text-transform:uppercase;margin-bottom:3px">Kindo Mall</div>
+        <div style="font-size:16px;color:#14110f;font-style:italic;margin-bottom:3px">${p.name}</div>
+        <div style="font-size:11px;color:#b0a598;margin-bottom:8px">Ref: ${p.ref}${p.tallas?" · "+p.tallas:""}</div>
+        ${p.precio?`<div style="font-size:16px;color:#14110f;font-weight:bold;margin-bottom:8px">RD$${p.precio}</div>`:""}
+        <div style="display:flex;gap:5px;flex-wrap:wrap">${colorDots(p.colores)}</div>
+      </div>
+    </div>`).join("");
+};
+
+// ══ RENDER ADMIN ══
+window.renderAdmin=()=>{
+  if(!$("admin-grid"))return;
+  const s=($("admin-search")||{value:""}).value.toLowerCase();
+  const f=products.filter(p=>(admFilter==="Todos"||p.tipo===admFilter)&&(!s||p.name.toLowerCase().includes(s)||p.ref.toLowerCase().includes(s)));
+  const el=$("admin-prod-count"); if(el) el.textContent=products.length+" producto"+(products.length!==1?"s":"");
+  const tipos=["Todos",...[...new Set(products.map(p=>p.tipo))].filter(Boolean)];
+  const af=$("admin-filtros"); if(af) af.innerHTML=tipos.map(t=>`<button class="filter-btn ${t===admFilter?'active':''}" style="${t===admFilter?'border-color:#d4b896;background:#d4b896;color:#14110f;':''}" onclick="admFilter='${t}';renderAdmin()">${t}</button>`).join("");
+  $("admin-grid").innerHTML=!f.length
+    ?`<div style="text-align:center;padding:80px 0;grid-column:1/-1"><div style="font-size:40px;margin-bottom:16px">📦</div><div style="font-size:14px;color:#8a7d6e;letter-spacing:2px">${products.length===0?"Sin productos aún.":"Sin resultados."}</div>${products.length===0?`<button class="btn-gold" style="margin-top:20px" onclick="openAdd()">+ Agregar Primer Producto</button>`:""}</div>`
+    :f.map((p,i)=>`
+    <div class="card" style="animation-delay:${i*.04}s">
+      <div style="position:relative;overflow:hidden;height:240px;background:#f0ece6">
+        ${p.img?`<img class="card-img" src="${p.img}" alt="${p.name}" loading="lazy" style="height:240px">`:`<div style="width:100%;height:240px;display:flex;align-items:center;justify-content:center;font-size:40px">👗</div>`}
+        <span class="badge" style="position:absolute;top:10px;left:10px">${p.tipo||""}</span>
+      </div>
+      <div style="padding:12px 14px 14px">
+        <div style="font-size:15px;color:#14110f;font-style:italic;margin-bottom:2px">${p.name}</div>
+        <div style="font-size:11px;color:#b0a598;margin-bottom:8px">Ref: ${p.ref}${p.tallas?" · "+p.tallas:""}${p.precio?" · RD$"+p.precio:""}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">${colorDots(p.colores)}</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="openEdit('${p.id}')" style="flex:1;padding:8px;background:#14110f;color:#d4b896;border:none;border-radius:50px;font-family:inherit;font-size:11px;cursor:pointer;letter-spacing:1px">✏ Editar</button>
+          <button onclick="handleDelete('${p.id}')" class="btn-danger">🗑</button>
+        </div>
+      </div>
+    </div>`).join("");
+};
+
+// ══ DETALLE ══
+window.openDetail=id=>{
+  const p=products.find(x=>x.id===id); if(!p)return;
+  $("d-badge").textContent="Kindo Mall · "+(p.tipo||"");
+  $("d-name").textContent=p.name;
+  $("d-ref").innerHTML="<b>Referencia:</b> "+p.ref;
+  $("d-tallas").innerHTML=p.tallas?"<b>Tallas:</b> "+p.tallas:"";
+  $("d-precio").textContent=p.precio?"RD$"+p.precio:"";
+  if(p.img){$("d-img").src=p.img;$("d-img").style.display="block";$("d-noimg").style.display="none";}
+  else{$("d-img").style.display="none";$("d-noimg").style.display="flex";}
+  $("d-colores").innerHTML=p.colores?`<div style="font-size:12px;color:#64748b;margin-bottom:8px"><b>Colores disponibles:</b></div><div style="display:flex;gap:8px;flex-wrap:wrap">${(p.colores).split(",").map(c=>c.trim()).filter(Boolean).map(c=>`<div style="display:flex;align-items:center;gap:5px"><div style="width:16px;height:16px;border-radius:50%;background:${getColorDot(c)};border:1.5px solid #e5e0d8"></div><span style="font-size:12px;color:#94a3b8">${c}</span></div>`).join("")}</div>`:"";
+  $("modal-detail").style.display="flex";
+};
+
+// ══ FORMULARIO ══
+function resetForm(){
+  uploadedUrl="";
+  ["f-name","f-ref","f-tallas","f-colores","f-precio","f-img"].forEach(id=>$(id).value="");
+  $("f-tipo").value="Top";
+  $("img-preview").style.display="none";
+  $("upload-hint").style.display="block";
+  $("progress-wrap").style.display="none";
+  $("progress-bar").style.width="0%";
+  $("upload-status").style.display="none";
+}
+
+window.openAdd=()=>{
+  editId=null; resetForm();
+  $("form-badge").textContent="Kindo Mall · Nuevo Producto";
+  $("form-title").textContent="Agregar al Catálogo";
+  $("submit-btn").textContent="Agregar Producto";
+  $("modal-form").style.display="flex";
+};
+
+window.openEdit=id=>{
+  const p=products.find(x=>x.id===id); if(!p)return;
+  editId=id; resetForm();
+  uploadedUrl=p.img||"";
+  $("f-name").value=p.name||""; $("f-ref").value=p.ref||"";
+  $("f-tallas").value=p.tallas||""; $("f-colores").value=p.colores||"";
+  $("f-precio").value=p.precio||""; $("f-img").value=p.img||"";
+  $("f-tipo").value=p.tipo||"Top";
+  if(p.img){$("img-preview").src=p.img;$("img-preview").style.display="block";$("upload-hint").style.display="none";}
+  $("form-badge").textContent="Kindo Mall · Editar Producto";
+  $("form-title").textContent=p.name;
+  $("submit-btn").textContent="Guardar Cambios";
+  $("modal-form").style.display="flex";
+};
+
+// ══ SUBIR FOTO A IMGBB ══
+window.handleFile=async e=>{
+  const file=e.target.files[0]; if(!file)return;
+
+  // Preview local inmediato
+  const reader=new FileReader();
+  reader.onload=ev=>{$("img-preview").src=ev.target.result;$("img-preview").style.display="block";$("upload-hint").style.display="none";};
+  reader.readAsDataURL(file);
+
+  // Validar que la key esté configurada
+  if(IMGBB_KEY==="TU_API_KEY_IMGBB"){
+    toast("⚠️ Configura tu API key de ImgBB primero");
+    return;
+  }
+
+  // Subir a ImgBB
+  const btn=$("submit-btn");
+  $("progress-wrap").style.display="block";
+  $("upload-status").style.display="block";
+  $("upload-status").textContent="⏳ Subiendo foto a ImgBB...";
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Subiendo...';
+
+  // Simular progreso visual mientras sube
+  let prog=0;
+  const interval=setInterval(()=>{prog=Math.min(prog+8,90);$("progress-bar").style.width=prog+"%";},200);
+
+  try{
+    const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});
+    const form=new FormData();
+    form.append("image",base64);
+    form.append("key",IMGBB_KEY);
+
+    const resp=await fetch("https://api.imgbb.com/1/upload",{method:"POST",body:form});
+    const data=await resp.json();
+
+    clearInterval(interval);
+
+    if(data.success){
+      uploadedUrl=data.data.url;
+      $("f-img").value=uploadedUrl;
+      $("progress-bar").style.width="100%";
+      $("upload-status").textContent="✅ Foto subida correctamente";
+      $("upload-status").style.color="#059669";
+      toast("✅ Foto guardada en ImgBB");
+    } else {
+      throw new Error(data.error?.message||"Error desconocido");
+    }
+  }catch(err){
+    clearInterval(interval);
+    $("upload-status").textContent="❌ Error: "+err.message;
+    $("upload-status").style.color="#dc2626";
+    toast("❌ Error al subir: "+err.message);
+  }
+
+  btn.disabled=false;
+  btn.textContent=editId?"Guardar Cambios":"Agregar Producto";
+};
+
+window.updatePreviewUrl=()=>{
+  const v=$("f-img").value; uploadedUrl=v;
+  if(v){$("img-preview").src=v;$("img-preview").style.display="block";$("upload-hint").style.display="none";}
+  else{$("img-preview").style.display="none";$("upload-hint").style.display="block";}
+};
+
+// ══ GUARDAR EN FIRESTORE ══
+window.handleSubmit=async()=>{
+  const name=$("f-name").value.trim(), ref2=$("f-ref").value.trim();
+  if(!name||!ref2)return alert("El nombre y la referencia son obligatorios.");
+  const btn=$("submit-btn"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Guardando...';
+  const img=uploadedUrl||$("f-img").value.trim();
+  const data={name,ref:ref2,tallas:$("f-tallas").value.trim(),colores:$("f-colores").value.trim(),precio:$("f-precio").value.trim(),tipo:$("f-tipo").value,img,updatedAt:serverTimestamp()};
+  try{
+    if(editId){await updateDoc(doc(db,"productos",editId),data);toast("✅ Producto actualizado");}
+    else{data.createdAt=serverTimestamp();await addDoc(collection(db,"productos"),data);toast("✅ Producto agregado");}
+    $("modal-form").style.display="none";
+  }catch(err){toast("❌ Firestore: "+err.message);console.error(err);}
+  btn.disabled=false; btn.textContent=editId?"Guardar Cambios":"Agregar Producto";
+};
+
+// ══ ELIMINAR ══
+window.handleDelete=async id=>{
+  if(!confirm("¿Eliminar este producto?"))return;
+  try{await deleteDoc(doc(db,"productos",id));toast("🗑 Producto eliminado");}
+  catch(err){toast("❌ Error: "+err.message);}
+};
+
+// ══ INIT ══
+showPublic();
+</script>
+</body>
+</html>
