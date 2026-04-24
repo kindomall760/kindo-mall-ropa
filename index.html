@@ -1,425 +1,944 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Kindo Mall – Catálogo</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kindo Mall — Chat Interno</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Palatino Linotype',Palatino,serif;background:#f8f6f2;min-height:100vh;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-@keyframes spin{to{transform:rotate(360deg);}}
-.card{animation:fadeUp .4s ease both;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.07);cursor:pointer;position:relative;transition:transform .2s,box-shadow .2s;}
-.card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,0.13);}
-.card:hover .card-overlay{opacity:1!important;}
-.card-img{transition:transform .4s ease;width:100%;height:280px;object-fit:cover;display:block;}
-.card:hover .card-img{transform:scale(1.04);}
-.btn-gold{background:#14110f;color:#d4b896;border:none;border-radius:50px;font-family:inherit;font-size:13px;cursor:pointer;letter-spacing:1px;padding:11px 26px;transition:opacity .2s;}
-.btn-gold:hover{opacity:.85;}
-.btn-gold:disabled{opacity:.5;cursor:not-allowed;}
-.btn-light{background:#f0ece6;color:#8a7d6e;border:none;border-radius:50px;font-family:inherit;font-size:13px;cursor:pointer;padding:11px 20px;}
-.btn-danger{background:#fee2e2;color:#dc2626;border:none;border-radius:50px;font-family:inherit;font-size:12px;cursor:pointer;padding:8px 14px;}
-.filter-btn{padding:7px 18px;border-radius:50px;font-size:12px;letter-spacing:1px;cursor:pointer;font-family:inherit;border:2px solid #e5e0d8;background:#fff;color:#8a7d6e;transition:all .2s;}
-.filter-btn.active{border-color:#14110f;background:#14110f;color:#d4b896;}
-.field-label{font-size:10px;color:#8a7d6e;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;display:block;}
-.field-input{width:100%;padding:10px 14px;border:1.5px solid #e5e0d8;border-radius:10px;font-family:inherit;font-size:13px;outline:none;background:#fff;transition:border-color .2s;}
-.field-input:focus{border-color:#d4b896;}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;animation:fadeIn .2s;}
-.modal-box{background:#fff;border-radius:20px;max-width:500px;width:100%;max-height:92vh;overflow-y:auto;padding:36px 30px;}
-.badge{display:inline-block;background:#14110f;color:#d4b896;font-size:9px;letter-spacing:2px;padding:4px 10px;border-radius:50px;text-transform:uppercase;}
-.spinner{width:16px;height:16px;border:2px solid rgba(212,184,150,0.3);border-top-color:#d4b896;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
-#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#14110f;color:#d4b896;padding:12px 28px;border-radius:50px;font-size:13px;letter-spacing:1px;z-index:9999;display:none;animation:fadeIn .3s;white-space:nowrap;}
-::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:#f0ece6;}::-webkit-scrollbar-thumb{background:#d4b896;border-radius:3px;}
-#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;padding:20px 24px 40px;max-width:1200px;margin:0 auto;}
-#admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;padding:24px;max-width:1400px;margin:0 auto;}
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#14110f 0%,#2a2118 100%);}
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080808;
+  --bg2:#101010;
+  --bg3:#181818;
+  --bg4:#202020;
+  --bg5:#282828;
+  --red:#cc0000;
+  --red2:#e60000;
+  --red3:#ff2222;
+  --red-dim:rgba(204,0,0,0.12);
+  --red-border:rgba(204,0,0,0.35);
+  --w1:#ffffff;
+  --w2:#e2e2e2;
+  --w3:#a0a0a0;
+  --w4:#555555;
+  --green:#22c55e;
+  --border:#1f1f1f;
+  --fh:'Bebas Neue',sans-serif;
+  --fb:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--w1);font-family:var(--fb);height:100vh;overflow:hidden;}
+.hidden{display:none!important;}
+input,textarea,button{font-family:var(--fb);}
 
-/* Upload zone */
-#upload-zone{border:2px dashed #e5e0d8;border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:#faf9f7;transition:border-color .2s;}
-#upload-zone:hover{border-color:#d4b896;}
+/* ═══════════════ SETUP SCREEN ═══════════════ */
+#setup-screen{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:1.5rem;
+}
+.setup-wrap{
+  background:var(--bg3);border:1px solid #2a0000;
+  border-radius:14px;padding:2.25rem;width:100%;max-width:540px;
+}
+.setup-logo{
+  font-family:var(--fh);font-size:2.8rem;color:var(--red);
+  letter-spacing:3px;line-height:1;
+}
+.setup-logo span{color:var(--w3);font-size:1rem;letter-spacing:5px;font-family:var(--fb);font-weight:300;display:block;margin-top:4px;}
+.setup-steps{margin:1.25rem 0;}
+.setup-step{
+  background:var(--bg4);border-left:3px solid var(--red);
+  border-radius:0 8px 8px 0;padding:0.85rem 1rem;margin-bottom:0.75rem;
+}
+.setup-step h4{font-size:0.82rem;font-weight:600;color:var(--w2);margin-bottom:0.3rem;}
+.setup-step p{font-size:0.76rem;color:var(--w3);line-height:1.55;}
+.setup-step code{background:var(--bg5);color:var(--red);padding:0.1rem 0.35rem;border-radius:3px;font-size:0.74rem;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
+.fi{
+  width:100%;background:var(--bg4);border:1px solid #2a2a2a;
+  color:var(--w1);padding:0.65rem 0.85rem;border-radius:7px;
+  font-size:0.83rem;outline:none;transition:border-color .2s;
+  margin-bottom:0.6rem;
+}
+.fi:focus{border-color:var(--red);}
+.fi::placeholder{color:var(--w4);}
+.fl{display:block;font-size:0.72rem;color:var(--w3);margin-bottom:0.35rem;font-weight:500;text-transform:uppercase;letter-spacing:.5px;}
+.btn-red{
+  width:100%;background:var(--red);border:none;color:white;
+  padding:0.8rem;border-radius:8px;font-size:0.92rem;font-weight:600;
+  cursor:pointer;transition:background .2s;letter-spacing:.5px;
+}
+.btn-red:hover{background:var(--red2);}
+.err-msg{color:#ff5555;font-size:0.78rem;margin-bottom:0.75rem;display:none;padding:0.5rem 0.75rem;background:rgba(255,0,0,0.08);border-radius:6px;border:1px solid rgba(255,0,0,0.2);}
 
-/* Progress */
-.progress-wrap{width:100%;background:#f0ece6;border-radius:50px;height:8px;margin-top:10px;overflow:hidden;display:none;}
-.progress-bar{height:8px;background:linear-gradient(90deg,#d4b896,#14110f);border-radius:50px;width:0%;transition:width .2s;}
+/* ═══════════════ LOGIN ═══════════════ */
+#login-screen{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;z-index:900;
+}
+.login-card{
+  display:flex;width:820px;max-width:96vw;
+  border-radius:16px;overflow:hidden;border:1px solid var(--bg5);
+  box-shadow:0 0 80px rgba(204,0,0,0.08);
+}
+.login-brand{
+  flex:1;background:var(--bg2);border-right:1px solid var(--bg5);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:3rem 2.5rem;position:relative;overflow:hidden;
+}
+.login-brand::before{
+  content:'';position:absolute;width:380px;height:380px;
+  background:radial-gradient(circle,rgba(204,0,0,0.12),transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.brand-logo{
+  font-family:var(--fh);font-size:5rem;color:var(--red);
+  letter-spacing:5px;text-align:center;line-height:.9;position:relative;z-index:1;
+}
+.brand-tagline{
+  font-size:0.72rem;color:var(--w4);letter-spacing:5px;
+  text-transform:uppercase;margin-top:.6rem;position:relative;z-index:1;
+}
+.brand-line{width:50px;height:2px;background:var(--red);margin:1.4rem auto;position:relative;z-index:1;}
+.brand-desc{font-size:0.8rem;color:var(--w4);text-align:center;line-height:1.7;position:relative;z-index:1;}
+.login-form{
+  flex:1;background:var(--bg2);padding:3rem 2.5rem;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.login-form h2{font-family:var(--fh);font-size:2rem;letter-spacing:1.5px;margin-bottom:.25rem;color:var(--w1);}
+.login-form .subtitle{font-size:0.78rem;color:var(--w4);margin-bottom:2rem;}
+.field-label{display:block;font-size:0.7rem;color:var(--w3);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:.45rem;}
+.field-in{
+  width:100%;background:var(--bg4);border:1px solid #252525;color:var(--w1);
+  padding:.8rem 1rem;border-radius:9px;font-size:.93rem;outline:none;
+  transition:all .2s;margin-bottom:1.1rem;
+}
+.field-in:focus{border-color:var(--red);background:var(--bg5);}
+.field-in::placeholder{color:var(--w4);}
 
-/* IMGBB badge */
-.imgbb-badge{display:inline-flex;align-items:center;gap:5px;background:#fff3cd;color:#856404;font-size:10px;padding:4px 10px;border-radius:50px;letter-spacing:1px;margin-top:8px;}
+/* ═══════════════ APP SHELL ═══════════════ */
+#app{display:none;height:100vh;flex-direction:column;}
+.topbar{
+  height:54px;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 1.25rem;gap:1rem;flex-shrink:0;
+}
+.topbar-logo{font-family:var(--fh);font-size:1.5rem;color:var(--red);letter-spacing:2px;}
+.topbar-sep{width:1px;height:22px;background:var(--border);}
+.topbar-channel{
+  font-size:0.82rem;color:var(--w3);background:var(--bg4);
+  border:1px solid var(--border);padding:.28rem .85rem;border-radius:20px;
+}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:.65rem;}
+.user-chip{
+  display:flex;align-items:center;gap:.45rem;background:var(--bg4);
+  border:1px solid var(--border);border-radius:20px;padding:.25rem .7rem .25rem .25rem;
+}
+.ava{
+  width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.72rem;font-weight:600;flex-shrink:0;
+}
+.chip-name{font-size:.82rem;font-weight:500;color:var(--w2);}
+.chip-role{
+  font-size:.62rem;background:var(--red-dim);color:var(--red);
+  border:1px solid var(--red-border);padding:.12rem .4rem;border-radius:4px;font-weight:600;letter-spacing:.5px;
+}
+.btn-out{
+  background:none;border:1px solid #2a2a2a;color:var(--w4);padding:.3rem .7rem;
+  border-radius:7px;font-size:.78rem;cursor:pointer;transition:all .2s;
+}
+.btn-out:hover{border-color:var(--red);color:var(--red);}
+.app-body{display:flex;flex:1;overflow:hidden;}
+
+/* ═══════════════ SIDEBAR ═══════════════ */
+.sidebar{
+  width:225px;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;
+}
+.sib-sec{padding:.9rem .7rem .4rem;}
+.sib-lbl{
+  font-size:.62rem;color:var(--w4);text-transform:uppercase;
+  letter-spacing:1.5px;font-weight:600;padding:0 .5rem;margin-bottom:.4rem;
+}
+.sib-item{
+  display:flex;align-items:center;gap:.55rem;padding:.5rem .7rem;
+  border-radius:7px;cursor:pointer;font-size:.85rem;color:var(--w3);transition:all .15s;
+}
+.sib-item:hover{background:var(--bg4);color:var(--w1);}
+.sib-item.active{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border);}
+.sib-item .ico{font-size:.9rem;}
+.sib-divider{height:1px;background:var(--border);margin:.5rem .7rem;}
+.emp-list{flex:1;overflow-y:auto;padding:.3rem .7rem .7rem;}
+.emp-list::-webkit-scrollbar{width:3px;}
+.emp-list::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:4px;}
+.emp-item{
+  display:flex;align-items:center;gap:.55rem;
+  padding:.45rem .55rem;border-radius:7px;
+}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot.on{background:var(--green);}
+.dot.off{background:#333;}
+.emp-name{font-size:.82rem;color:var(--w3);}
+.emp-role-tag{font-size:.62rem;color:var(--w4);}
+
+/* ═══════════════ CHAT ═══════════════ */
+.chat-main{flex:1;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;}
+.chat-msgs{flex:1;overflow-y:auto;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.6rem;}
+.chat-msgs::-webkit-scrollbar{width:4px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:#222;border-radius:4px;}
+.date-divider{display:flex;align-items:center;gap:.6rem;margin:.25rem 0;}
+.date-divider::before,.date-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.date-divider span{font-size:.68rem;color:var(--w4);white-space:nowrap;}
+.msg-row{display:flex;gap:.6rem;align-items:flex-start;}
+.msg-row.own{flex-direction:row-reverse;}
+.msg-ava{
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.72rem;font-weight:600;flex-shrink:0;margin-top:2px;
+}
+.msg-body{max-width:68%;}
+.msg-meta{display:flex;align-items:center;gap:.45rem;margin-bottom:.28rem;}
+.msg-row.own .msg-meta{flex-direction:row-reverse;}
+.msg-sender{font-size:.76rem;font-weight:600;color:var(--w2);}
+.msg-time{font-size:.67rem;color:var(--w4);}
+.msg-bubble{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:2px 12px 12px 12px;padding:.65rem .95rem;
+  font-size:.87rem;line-height:1.55;color:var(--w2);word-break:break-word;
+}
+.msg-row.own .msg-bubble{
+  background:rgba(120,0,0,0.25);border-color:rgba(204,0,0,0.3);
+  border-radius:12px 2px 12px 12px;color:var(--w1);
+}
+.msg-img{
+  max-width:100%;border-radius:9px;display:block;
+  max-height:260px;object-fit:cover;cursor:pointer;margin-bottom:.3rem;
+}
+/* Product card in chat */
+.pcard-msg{
+  background:var(--bg4);border:1px solid #2a2a2a;
+  border-radius:11px;overflow:hidden;max-width:270px;
+}
+.pcard-msg img{width:100%;height:140px;object-fit:cover;display:block;}
+.pcard-no-img{
+  width:100%;height:80px;background:var(--bg5);
+  display:flex;align-items:center;justify-content:center;font-size:1.5rem;
+}
+.pcard-body{padding:.7rem .8rem;}
+.pcard-tag{font-size:.6rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:.25rem;}
+.pcard-name{font-size:.88rem;font-weight:600;color:var(--w1);margin-bottom:.2rem;}
+.pcard-desc{font-size:.75rem;color:var(--w3);line-height:1.4;margin-bottom:.45rem;}
+.pcard-price{font-size:1rem;font-weight:700;color:var(--red);}
+.pcard-actions{display:flex;gap:.45rem;margin-top:.5rem;}
+.btn-wa{
+  flex:1;background:#25D366;border:none;color:white;
+  padding:.38rem .7rem;border-radius:7px;font-size:.75rem;
+  font-weight:700;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:.3rem;transition:background .2s;
+}
+.btn-wa:hover{background:#1db954;}
+.btn-copy-wa{
+  background:var(--bg5);border:1px solid #333;color:var(--w3);
+  padding:.38rem .6rem;border-radius:7px;font-size:.72rem;cursor:pointer;
+  transition:all .2s;
+}
+.btn-copy-wa:hover{border-color:var(--red);color:var(--red);}
+
+/* Image preview bar */
+#img-prev-bar{
+  background:var(--bg2);border-top:1px solid var(--border);
+  padding:.6rem 1.25rem;
+}
+.prev-inner{display:flex;align-items:center;gap:.7rem;}
+#prev-thumb{height:58px;border-radius:7px;object-fit:cover;}
+.prev-info-name{font-size:.82rem;color:var(--w2);}
+.prev-info-sub{font-size:.72rem;color:var(--w4);}
+.btn-clr{
+  margin-left:auto;background:none;border:1px solid #333;color:var(--w4);
+  padding:.22rem .5rem;border-radius:5px;cursor:pointer;font-size:.75rem;
+}
+.btn-clr:hover{border-color:#666;color:var(--w2);}
+
+/* Input area */
+.input-area{
+  background:var(--bg2);border-top:1px solid var(--border);
+  padding:.85rem 1.25rem;flex-shrink:0;
+}
+.input-btns{display:flex;gap:.4rem;margin-bottom:.6rem;flex-wrap:wrap;}
+.btn-act{
+  background:var(--bg4);border:1px solid var(--border);color:var(--w3);
+  padding:.32rem .75rem;border-radius:7px;font-size:.77rem;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;gap:.3rem;
+}
+.btn-act:hover{border-color:var(--red);color:var(--red);}
+.input-row{display:flex;gap:.55rem;align-items:flex-end;}
+.chat-in{
+  flex:1;background:var(--bg4);border:1px solid #252525;color:var(--w1);
+  padding:.7rem 1rem;border-radius:10px;font-size:.9rem;outline:none;
+  resize:none;line-height:1.5;transition:border-color .2s;max-height:110px;
+}
+.chat-in:focus{border-color:var(--red);}
+.chat-in::placeholder{color:var(--w4);}
+.btn-send{
+  width:44px;height:44px;background:var(--red);border:none;color:white;
+  border-radius:10px;cursor:pointer;font-size:1rem;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:background .2s;
+}
+.btn-send:hover{background:var(--red2);}
+.typing-ind{font-size:.73rem;color:var(--w4);padding:.2rem 1.25rem .1rem;min-height:20px;}
+
+/* ═══════════════ RIGHT PANEL ═══════════════ */
+.prod-panel{
+  width:268px;background:var(--bg2);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;
+}
+.panel-hdr{padding:.9rem 1rem .7rem;border-bottom:1px solid var(--border);}
+.panel-hdr h3{font-family:var(--fh);font-size:1.05rem;letter-spacing:1px;color:var(--w1);}
+.panel-hdr p{font-size:.72rem;color:var(--w4);margin-top:.15rem;}
+.panel-search{padding:.6rem .7rem .2rem;}
+.panel-search-in{
+  width:100%;background:var(--bg4);border:1px solid var(--border);
+  color:var(--w1);padding:.45rem .8rem;border-radius:7px;font-size:.8rem;outline:none;
+}
+.panel-search-in:focus{border-color:var(--red);}
+.panel-search-in::placeholder{color:var(--w4);}
+.prod-list{flex:1;overflow-y:auto;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.5rem;}
+.prod-list::-webkit-scrollbar{width:3px;}
+.prod-list::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:4px;}
+.panel-pcard{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;transition:border-color .2s;
+}
+.panel-pcard:hover{border-color:#2a2a2a;}
+.panel-pcard img{width:100%;height:100px;object-fit:cover;display:block;}
+.panel-pcard-no-img{
+  width:100%;height:80px;background:var(--bg4);
+  display:flex;align-items:center;justify-content:center;color:var(--w4);font-size:1.5rem;
+}
+.panel-pcard-body{padding:.6rem .7rem;}
+.panel-pcard-name{font-size:.83rem;font-weight:600;color:var(--w1);margin-bottom:.15rem;}
+.panel-pcard-desc{font-size:.73rem;color:var(--w4);line-height:1.35;margin-bottom:.4rem;}
+.panel-pcard-foot{display:flex;align-items:center;justify-content:space-between;gap:.4rem;}
+.panel-pcard-price{font-size:.88rem;font-weight:700;color:var(--red);}
+.btn-shr{
+  background:none;border:1px solid #2a2a2a;color:var(--w4);
+  padding:.2rem .5rem;border-radius:5px;font-size:.7rem;cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.btn-shr:hover{border-color:var(--red);color:var(--red);}
+.btn-del{
+  background:none;border:1px solid #2a2a2a;color:var(--w4);
+  padding:.2rem .45rem;border-radius:5px;font-size:.68rem;cursor:pointer;
+  transition:all .2s;
+}
+.btn-del:hover{border-color:#ff5555;color:#ff5555;}
+.btn-add-prod{
+  margin:.65rem .7rem;background:var(--bg4);border:1px dashed #2a2a2a;
+  color:var(--w4);padding:.6rem;border-radius:8px;font-size:.8rem;
+  cursor:pointer;text-align:center;transition:all .2s;
+}
+.btn-add-prod:hover{border-color:var(--red);color:var(--red);}
+
+/* ═══════════════ MODALS ═══════════════ */
+.modal-ov{
+  position:fixed;inset:0;background:rgba(0,0,0,.82);
+  display:flex;align-items:center;justify-content:center;z-index:600;padding:1rem;
+}
+.modal{
+  background:var(--bg3);border:1px solid #2a2a2a;border-radius:13px;
+  padding:1.75rem;width:400px;max-width:95vw;
+}
+.modal h3{font-family:var(--fh);font-size:1.3rem;letter-spacing:1px;margin-bottom:1.1rem;color:var(--w1);}
+.min{
+  width:100%;background:var(--bg4);border:1px solid #2a2a2a;color:var(--w1);
+  padding:.65rem .9rem;border-radius:8px;font-size:.88rem;outline:none;
+  margin-bottom:.65rem;transition:border-color .2s;
+}
+.min:focus{border-color:var(--red);}
+.min::placeholder{color:var(--w4);}
+.mta{resize:vertical;min-height:75px;}
+.img-drop{
+  border:1px dashed #333;border-radius:9px;padding:.9rem;
+  text-align:center;margin-bottom:.65rem;cursor:pointer;transition:border-color .2s;
+}
+.img-drop:hover{border-color:var(--red);}
+.img-drop-txt{font-size:.78rem;color:var(--w4);}
+.img-drop img{max-width:100%;max-height:150px;border-radius:7px;display:none;margin:0 auto;}
+.mfooter{display:flex;gap:.55rem;margin-top:.85rem;}
+.btn-cancel{
+  flex:1;background:none;border:1px solid #2a2a2a;color:var(--w4);
+  padding:.65rem;border-radius:8px;font-size:.86rem;cursor:pointer;transition:all .2s;
+}
+.btn-cancel:hover{border-color:#444;color:var(--w2);}
+.btn-ok{
+  flex:1;background:var(--red);border:none;color:white;
+  padding:.65rem;border-radius:8px;font-size:.86rem;font-weight:600;cursor:pointer;
+  transition:background .2s;
+}
+.btn-ok:hover{background:var(--red2);}
+
+/* ═══════════════ TOAST ═══════════════ */
+#toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg3);
+  border:1px solid #2a2a2a;border-left:3px solid var(--red);
+  padding:.7rem 1.2rem;border-radius:9px;font-size:.83rem;color:var(--w2);
+  z-index:1000;opacity:0;transform:translateY(8px);transition:all .28s;pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateY(0);}
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;color:var(--w4);font-size:.83rem;gap:.5rem;padding:2rem;text-align:center;
+}
+.empty-state .eico{font-size:2rem;margin-bottom:.25rem;}
 </style>
 </head>
 <body>
 
-<div id="toast"></div>
+<!-- ═══ SETUP SCREEN ═══ -->
+<div id="setup-screen">
+  <div class="setup-wrap">
+    <div class="setup-logo">KINDO MALL<span>Configuración Inicial</span></div>
+    <div class="setup-steps">
+      <div class="setup-step">
+        <h4>📌 Paso 1 — Crea tu proyecto Firebase</h4>
+        <p>Ve a <code>console.firebase.google.com</code> → Crear proyecto → Habilita <code>Firestore Database</code>, <code>Authentication</code> (Email/Password) y <code>Storage</code></p>
+      </div>
+      <div class="setup-step">
+        <h4>⚙️ Paso 2 — Ingresa la configuración de tu proyecto</h4>
+        <p>En Firebase: Configuración del proyecto → Tus apps → SDK web → Copia los valores abajo</p>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div><label class="fl">API Key</label><input class="fi" id="cfg-apiKey" placeholder="AIzaSy..."></div>
+      <div><label class="fl">Auth Domain</label><input class="fi" id="cfg-authDomain" placeholder="mi-app.firebaseapp.com"></div>
+      <div><label class="fl">Project ID</label><input class="fi" id="cfg-projectId" placeholder="mi-proyecto"></div>
+      <div><label class="fl">Storage Bucket</label><input class="fi" id="cfg-storageBucket" placeholder="mi-app.appspot.com"></div>
+      <div><label class="fl">Messaging Sender ID</label><input class="fi" id="cfg-msgSenderId" placeholder="123456789"></div>
+      <div><label class="fl">App ID</label><input class="fi" id="cfg-appId" placeholder="1:123:web:abc..."></div>
+    </div>
+    <div class="err-msg" id="setup-err"></div>
+    <button class="btn-red" onclick="saveConfig()">Guardar configuración y continuar →</button>
+  </div>
+</div>
 
 <!-- ═══ LOGIN ═══ -->
-<div id="login-screen" style="display:none;">
-  <div style="background:#fff;border-radius:24px;padding:44px 36px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
-    <div style="font-size:10px;color:#d4b896;letter-spacing:6px;text-transform:uppercase;margin-bottom:8px;">Acceso Administrador</div>
-    <div style="font-size:36px;color:#14110f;font-style:italic;margin-bottom:4px;">Kindo Mall</div>
-    <div style="width:50px;height:1px;background:#d4b896;margin:14px auto 28px;"></div>
-    <div style="margin-bottom:16px;text-align:left;"><label class="field-label">Usuario</label><input id="login-user" class="field-input" type="text" value="admin"/></div>
-    <div style="margin-bottom:24px;text-align:left;"><label class="field-label">Contraseña</label><input id="login-pass" class="field-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <div id="login-error" style="color:#dc2626;font-size:12px;margin-bottom:12px;display:none;">❌ Contraseña incorrecta.</div>
-    <button class="btn-gold" style="width:100%;padding:13px;" onclick="doLogin()">Entrar al Panel</button>
-    <div style="margin-top:16px;"><button onclick="showPublic()" style="background:none;border:none;color:#8a7d6e;font-family:inherit;font-size:12px;cursor:pointer;text-decoration:underline;">← Ver catálogo público</button></div>
-  </div>
-</div>
-
-<!-- ═══ VISTA PÚBLICA ═══ -->
-<div id="public-view">
-  <div style="background:#14110f;padding:36px 24px 28px;text-align:center;position:relative;overflow:hidden;">
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(212,184,150,0.07),transparent 60%);pointer-events:none;"></div>
-    <div style="font-size:10px;letter-spacing:8px;color:#d4b896;text-transform:uppercase;margin-bottom:10px;">Boutique Digital</div>
-    <div style="font-size:52px;color:#f5f0eb;font-style:italic;letter-spacing:4px;line-height:1;">Kindo Mall</div>
-    <div style="width:80px;height:1px;background:linear-gradient(90deg,transparent,#d4b896,transparent);margin:14px auto;"></div>
-    <div id="pub-count" style="font-size:11px;color:#8a7d6e;letter-spacing:4px;text-transform:uppercase;">Cargando...</div>
-    <div style="position:absolute;top:12px;right:16px;">
-      <button onclick="showLogin()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#8a7d6e;font-family:inherit;font-size:10px;letter-spacing:1px;padding:6px 14px;border-radius:50px;cursor:pointer;">⚙ Admin</button>
+<div id="login-screen" class="hidden">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-logo">KINDO<br>MALL</div>
+      <div class="brand-tagline">Sistema Interno</div>
+      <div class="brand-line"></div>
+      <div class="brand-desc">Portal de comunicación<br>para el equipo de trabajo<br>de Kindo Mall</div>
     </div>
-  </div>
-  <div style="max-width:1200px;margin:0 auto;padding:20px 24px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-    <input id="pub-search" placeholder="🔍  Buscar producto o referencia..." oninput="renderPublic()" style="flex:1;min-width:180px;padding:11px 18px;border:1.5px solid #e5e0d8;border-radius:50px;font-family:inherit;font-size:13px;outline:none;color:#333;background:#fff;"/>
-  </div>
-  <div id="pub-filtros" style="max-width:1200px;margin:0 auto;padding:14px 24px 6px;display:flex;gap:8px;flex-wrap:wrap;"></div>
-  <div id="grid"></div>
-  <div style="text-align:center;padding:32px 16px;color:#b0a598;font-size:10px;letter-spacing:4px;text-transform:uppercase;border-top:1px solid #ede9e3;margin-top:10px;">Kindo Mall © 2026 · Todos los derechos reservados</div>
-</div>
-
-<!-- ═══ VISTA ADMIN ═══ -->
-<div id="admin-view" style="display:none;">
-  <div style="background:#14110f;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span style="font-style:italic;font-size:18px;color:#f5f0eb;">Kindo Mall</span>
-      <span style="background:rgba(212,184,150,0.2);padding:3px 10px;border-radius:50px;font-size:10px;color:#d4b896;letter-spacing:2px;">ADMIN</span>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <span id="admin-prod-count" style="font-size:11px;color:#8a7d6e;"></span>
-      <button onclick="openAdd()" style="background:#d4b896;color:#14110f;border:none;border-radius:50px;font-family:inherit;font-size:12px;cursor:pointer;padding:9px 20px;letter-spacing:1px;font-weight:bold;">+ Agregar Producto</button>
-      <button onclick="logOut()" style="background:rgba(255,255,255,0.08);color:#8a7d6e;border:1px solid rgba(255,255,255,0.15);border-radius:50px;font-family:inherit;font-size:11px;cursor:pointer;padding:8px 16px;">Salir</button>
-    </div>
-  </div>
-  <div style="background:#1e1a17;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:1px solid #3a342e;">
-    <div style="color:#f5f0eb;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Gestión de Productos</div>
-    <input id="admin-search" placeholder="Buscar..." oninput="renderAdmin()" style="padding:8px 16px;border:1.5px solid #3a342e;border-radius:50px;font-family:inherit;font-size:12px;outline:none;background:#14110f;color:#f5f0eb;min-width:200px;"/>
-  </div>
-  <div id="admin-filtros" style="background:#1e1a17;padding:8px 24px 12px;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #3a342e;"></div>
-  <div id="admin-grid"></div>
-</div>
-
-<!-- ═══ MODAL DETALLE ═══ -->
-<div id="modal-detail" style="display:none;" class="overlay" onclick="if(event.target===this)this.style.display='none'">
-  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;max-width:820px;width:100%;display:flex;flex-wrap:wrap;overflow:hidden;max-height:92vh;">
-    <div style="width:55%;min-width:260px;background:#f0ece6;position:relative;">
-      <img id="d-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;min-height:360px;display:block;"/>
-      <div id="d-noimg" style="display:none;width:100%;min-height:360px;align-items:center;justify-content:center;font-size:80px;">👗</div>
-    </div>
-    <div style="flex:1;padding:36px 30px;display:flex;flex-direction:column;justify-content:center;min-width:240px;overflow-y:auto;">
-      <div id="d-badge" style="font-size:9px;color:#d4b896;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;"></div>
-      <div id="d-name" style="font-size:28px;color:#14110f;font-style:italic;margin-bottom:6px;"></div>
-      <div style="width:40px;height:1.5px;background:#d4b896;margin-bottom:18px;"></div>
-      <div id="d-ref" style="font-size:13px;color:#64748b;margin-bottom:6px;"></div>
-      <div id="d-tallas" style="font-size:13px;color:#64748b;margin-bottom:6px;"></div>
-      <div id="d-precio" style="font-size:22px;color:#14110f;font-weight:bold;margin-bottom:16px;"></div>
-      <div id="d-colores" style="margin-bottom:28px;"></div>
-      <button class="btn-light" onclick="document.getElementById('modal-detail').style.display='none'">Cerrar</button>
+    <div class="login-form">
+      <h2>INICIAR SESIÓN</h2>
+      <div class="subtitle">Ingresa tus credenciales de empleado</div>
+      <label class="field-label">Usuario</label>
+      <input class="field-in" id="l-user" type="text" placeholder="ej: manuel" autocomplete="off">
+      <label class="field-label">Contraseña</label>
+      <input class="field-in" id="l-pass" type="password" placeholder="••••••••">
+      <div class="err-msg" id="l-err">Usuario o contraseña incorrectos.</div>
+      <button class="btn-red" id="btn-login" onclick="doLogin()">Entrar al sistema →</button>
+      <p style="font-size:.73rem;color:var(--w4);margin-top:1.25rem;text-align:center;">¿Problemas para acceder? Contacta al administrador</p>
     </div>
   </div>
 </div>
 
-<!-- ═══ MODAL FORMULARIO ADMIN ═══ -->
-<div id="modal-form" style="display:none;" class="overlay" onclick="if(event.target===this)document.getElementById('modal-form').style.display='none'">
-  <div class="modal-box" onclick="event.stopPropagation()">
-    <div id="form-badge" style="font-size:10px;color:#d4b896;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;">Kindo Mall · Nuevo Producto</div>
-    <div id="form-title" style="font-size:24px;color:#14110f;font-style:italic;margin-bottom:22px;">Agregar al Catálogo</div>
-
-    <!-- IMAGEN -->
-    <div style="margin-bottom:18px;">
-      <label class="field-label">Foto del Producto</label>
-      <div id="upload-zone" onclick="document.getElementById('file-input').click()">
-        <img id="img-preview" src="" style="display:none;width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:12px;" onerror="this.style.display='none'"/>
-        <div id="upload-hint">
-          <div style="font-size:32px;margin-bottom:6px;">📸</div>
-          <div style="color:#8a7d6e;font-size:14px;font-weight:bold;">Haz clic para subir foto</div>
-          <div style="color:#b0a598;font-size:11px;margin-top:4px;">La foto se subirá a ImgBB automáticamente</div>
-        </div>
-        <input id="file-input" type="file" accept="image/*" onchange="handleFile(event)" style="display:none;"/>
+<!-- ═══ APP ═══ -->
+<div id="app">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-logo">KINDO MALL</div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-channel"># general</div>
+    <div id="online-badge" style="font-size:.76rem;color:var(--w4);"></div>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <div class="ava" id="hdr-ava"></div>
+        <span class="chip-name" id="hdr-name"></span>
+        <span class="chip-role" id="hdr-role"></span>
       </div>
-      <!-- Progress -->
-      <div class="progress-wrap" id="progress-wrap">
-        <div class="progress-bar" id="progress-bar"></div>
-      </div>
-      <div id="upload-status" style="font-size:11px;color:#8a7d6e;margin-top:6px;text-align:center;display:none;"></div>
-
-      <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
-        <div style="flex:1;height:1px;background:#e5e0d8;"></div>
-        <span style="font-size:11px;color:#b0a598;">o pega una URL</span>
-        <div style="flex:1;height:1px;background:#e5e0d8;"></div>
-      </div>
-      <input id="f-img" class="field-input" style="margin-top:8px;" placeholder="https://..." oninput="updatePreviewUrl()"/>
-    </div>
-
-    <!-- CAMPOS -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-      <div><label class="field-label">Nombre *</label><input id="f-name" class="field-input" placeholder="Ej: Short MB-640"/></div>
-      <div><label class="field-label">Referencia *</label><input id="f-ref" class="field-input" placeholder="Ej: MB-640"/></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-      <div><label class="field-label">Tallas</label><input id="f-tallas" class="field-input" placeholder="Ej: S – XL"/></div>
-      <div><label class="field-label">Precio (RD$)</label><input id="f-precio" class="field-input" placeholder="Ej: 850"/></div>
-    </div>
-    <div style="margin-bottom:14px;"><label class="field-label">Colores (separados por coma)</label><input id="f-colores" class="field-input" placeholder="Ej: Negro, Blanco, Rosa"/></div>
-    <div style="margin-bottom:20px;">
-      <label class="field-label">Categoría</label>
-      <select id="f-tipo" class="field-input">
-        <option>Top</option><option>Crop Top</option><option>Short</option><option>Pantalón</option><option>Blusa</option><option>Vestido</option><option>Conjunto</option><option>Otro</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn-gold" style="flex:1;" id="submit-btn" onclick="handleSubmit()">Agregar Producto</button>
-      <button class="btn-light" onclick="document.getElementById('modal-form').style.display='none'">Cancelar</button>
+      <button class="btn-out" onclick="doLogout()">Salir</button>
     </div>
   </div>
-</div>
 
-<!-- ═══ FIREBASE + IMGBB ═══ -->
-<script type="module">
-import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy }
-                             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-// ══ CONFIGURACIÓN — reemplaza TU_API_KEY_IMGBB con tu key ══
-const IMGBB_KEY = "f3951111ba289e124618ce07dccc12ee";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAkHzFiHPpIQYBNXxrct0iKrwYnEH4Zuzw",
-  authDomain: "base-de-datos-kindo-malll.firebaseapp.com",
-  projectId: "base-de-datos-kindo-malll",
-  storageBucket: "base-de-datos-kindo-malll.firebasestorage.app",
-  messagingSenderId: "829727067662",
-  appId: "1:829727067662:web:21d6472cb6602d37f0b65f"
-};
-
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-// ══ ESTADO ══
-const PASS = "admin123";
-const COLOR_MAP = {negro:"#1a1a1a",blanco:"#f5f0eb",rosa:"#f9a8d4",celeste:"#7dd3fc",beige:"#d4b896",azul:"#60a5fa",crema:"#fef3c7",gris:"#9ca3af",rojo:"#f87171",verde:"#6ee7b7",morado:"#c084fc",naranja:"#fb923c",amarillo:"#fde68a",cafe:"#92400e",marino:"#1e3a5f"};
-let products=[], editId=null, pubFilter="Todos", admFilter="Todos", uploadedUrl="";
-
-// ══ HELPERS ══
-const $=id=>document.getElementById(id);
-function getColorDot(c){const k=c.toLowerCase().trim();for(const m in COLOR_MAP)if(k.includes(m))return COLOR_MAP[m];return"#cbd5e1";}
-function colorDots(col){return(col||"").split(",").map(c=>c.trim()).filter(Boolean).map(c=>`<div title="${c}" style="width:16px;height:16px;border-radius:50%;background:${getColorDot(c)};border:1.5px solid #e5e0d8;flex-shrink:0;"></div>`).join("");}
-function toast(msg,ms=3000){const t=$("toast");t.textContent=msg;t.style.display="block";clearTimeout(t._t);t._t=setTimeout(()=>t.style.display="none",ms);}
-
-// ══ FIRESTORE REALTIME ══
-onSnapshot(query(collection(db,"productos"),orderBy("createdAt","desc")), snap=>{
-  products=snap.docs.map(d=>({id:d.id,...d.data()}));
-  renderPublic(); renderAdmin();
-});
-
-// ══ NAVEGACIÓN ══
-window.showLogin =()=>{$("public-view").style.display="none";$("admin-view").style.display="none";$("login-screen").style.display="flex";};
-window.showPublic=()=>{$("login-screen").style.display="none";$("admin-view").style.display="none";$("public-view").style.display="block";};
-window.showAdmin =()=>{$("login-screen").style.display="none";$("public-view").style.display="none";$("admin-view").style.display="block";};
-window.doLogin=()=>{
-  if($("login-user").value.trim()==="admin"&&$("login-pass").value===PASS){
-    $("login-error").style.display="none"; showAdmin();
-  } else $("login-error").style.display="block";
-};
-window.logOut=()=>showPublic();
-
-// ══ RENDER PÚBLICO ══
-window.renderPublic=()=>{
-  const s=($("pub-search")||{value:""}).value.toLowerCase();
-  const f=products.filter(p=>(pubFilter==="Todos"||p.tipo===pubFilter)&&(!s||p.name.toLowerCase().includes(s)||p.ref.toLowerCase().includes(s)));
-  $("pub-count").textContent=products.length+" Producto"+(products.length!==1?"s":"");
-  const tipos=["Todos",...[...new Set(products.map(p=>p.tipo))].filter(Boolean)];
-  $("pub-filtros").innerHTML=tipos.map(t=>`<button class="filter-btn ${t===pubFilter?'active':''}" onclick="pubFilter='${t}';renderPublic()">${t}</button>`).join("");
-  $("grid").innerHTML=!f.length
-    ?`<div style="text-align:center;padding:80px 0;grid-column:1/-1"><div style="font-size:48px;margin-bottom:16px">🛍️</div><div style="font-size:14px;color:#8a7d6e;letter-spacing:2px">${products.length===0?"Catálogo próximamente.":"Sin resultados."}</div></div>`
-    :f.map((p,i)=>`
-    <div class="card" style="animation-delay:${i*.04}s" onclick="openDetail('${p.id}')">
-      <div style="position:relative;overflow:hidden;height:280px;background:#f0ece6;">
-        ${p.img?`<img class="card-img" src="${p.img}" alt="${p.name}" loading="lazy">`:`<div style="width:100%;height:280px;display:flex;align-items:center;justify-content:center;font-size:48px">👗</div>`}
-        <span class="badge" style="position:absolute;top:10px;left:10px">${p.tipo||""}</span>
+  <!-- Body -->
+  <div class="app-body">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sib-sec">
+        <div class="sib-lbl">Canales</div>
+        <div class="sib-item active"><span class="ico">#</span>general</div>
+        <div class="sib-item"><span class="ico">#</span>productos</div>
+        <div class="sib-item"><span class="ico">#</span>anuncios</div>
       </div>
-      <div style="padding:14px 16px 18px">
-        <div style="font-size:9px;color:#b0a598;letter-spacing:3px;text-transform:uppercase;margin-bottom:3px">Kindo Mall</div>
-        <div style="font-size:16px;color:#14110f;font-style:italic;margin-bottom:3px">${p.name}</div>
-        <div style="font-size:11px;color:#b0a598;margin-bottom:8px">Ref: ${p.ref}${p.tallas?" · "+p.tallas:""}</div>
-        ${p.precio?`<div style="font-size:16px;color:#14110f;font-weight:bold;margin-bottom:8px">RD$${p.precio}</div>`:""}
-        <div style="display:flex;gap:5px;flex-wrap:wrap">${colorDots(p.colores)}</div>
+      <div class="sib-divider"></div>
+      <div class="sib-sec">
+        <div class="sib-lbl">Empleados</div>
       </div>
-    </div>`).join("");
-};
+      <div class="emp-list" id="emp-list"></div>
+    </div>
 
-// ══ RENDER ADMIN ══
-window.renderAdmin=()=>{
-  if(!$("admin-grid"))return;
-  const s=($("admin-search")||{value:""}).value.toLowerCase();
-  const f=products.filter(p=>(admFilter==="Todos"||p.tipo===admFilter)&&(!s||p.name.toLowerCase().includes(s)||p.ref.toLowerCase().includes(s)));
-  const el=$("admin-prod-count"); if(el) el.textContent=products.length+" producto"+(products.length!==1?"s":"");
-  const tipos=["Todos",...[...new Set(products.map(p=>p.tipo))].filter(Boolean)];
-  const af=$("admin-filtros"); if(af) af.innerHTML=tipos.map(t=>`<button class="filter-btn ${t===admFilter?'active':''}" style="${t===admFilter?'border-color:#d4b896;background:#d4b896;color:#14110f;':''}" onclick="admFilter='${t}';renderAdmin()">${t}</button>`).join("");
-  $("admin-grid").innerHTML=!f.length
-    ?`<div style="text-align:center;padding:80px 0;grid-column:1/-1"><div style="font-size:40px;margin-bottom:16px">📦</div><div style="font-size:14px;color:#8a7d6e;letter-spacing:2px">${products.length===0?"Sin productos aún.":"Sin resultados."}</div>${products.length===0?`<button class="btn-gold" style="margin-top:20px" onclick="openAdd()">+ Agregar Primer Producto</button>`:""}</div>`
-    :f.map((p,i)=>`
-    <div class="card" style="animation-delay:${i*.04}s">
-      <div style="position:relative;overflow:hidden;height:240px;background:#f0ece6">
-        ${p.img?`<img class="card-img" src="${p.img}" alt="${p.name}" loading="lazy" style="height:240px">`:`<div style="width:100%;height:240px;display:flex;align-items:center;justify-content:center;font-size:40px">👗</div>`}
-        <span class="badge" style="position:absolute;top:10px;left:10px">${p.tipo||""}</span>
+    <!-- Chat -->
+    <div class="chat-main">
+      <div class="chat-msgs" id="chat-msgs">
+        <div class="date-divider"><span>Hoy</span></div>
       </div>
-      <div style="padding:12px 14px 14px">
-        <div style="font-size:15px;color:#14110f;font-style:italic;margin-bottom:2px">${p.name}</div>
-        <div style="font-size:11px;color:#b0a598;margin-bottom:8px">Ref: ${p.ref}${p.tallas?" · "+p.tallas:""}${p.precio?" · RD$"+p.precio:""}</div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">${colorDots(p.colores)}</div>
-        <div style="display:flex;gap:8px">
-          <button onclick="openEdit('${p.id}')" style="flex:1;padding:8px;background:#14110f;color:#d4b896;border:none;border-radius:50px;font-family:inherit;font-size:11px;cursor:pointer;letter-spacing:1px">✏ Editar</button>
-          <button onclick="handleDelete('${p.id}')" class="btn-danger">🗑</button>
+      <div class="typing-ind" id="typing-ind"></div>
+      <!-- Image preview bar -->
+      <div id="img-prev-bar" class="hidden">
+        <div class="prev-inner">
+          <img id="prev-thumb" src="" alt="">
+          <div>
+            <div class="prev-info-name" id="prev-name"></div>
+            <div class="prev-info-sub">Lista para enviar</div>
+          </div>
+          <button class="btn-clr" onclick="clearImg()">✕ Quitar</button>
         </div>
       </div>
-    </div>`).join("");
+      <div class="input-area">
+        <div class="input-btns">
+          <button class="btn-act" onclick="document.getElementById('file-inp').click()">📷 Foto/Imagen</button>
+          <button class="btn-act" onclick="openModal('prod-modal')">📦 Compartir Producto</button>
+          <button class="btn-act" onclick="waText()">📲 Enviar a WhatsApp</button>
+        </div>
+        <div class="input-row">
+          <textarea class="chat-in" id="msg-in" placeholder="Escribe un mensaje..." rows="1"
+            onkeydown="onKey(event)" oninput="autoH(this)"></textarea>
+          <button class="btn-send" onclick="sendMsg()">➤</button>
+        </div>
+      </div>
+      <input type="file" id="file-inp" accept="image/*" style="display:none" onchange="onFile(event)">
+    </div>
+
+    <!-- Product Panel -->
+    <div class="prod-panel">
+      <div class="panel-hdr">
+        <h3>📦 CATÁLOGO</h3>
+        <p>Productos Kindo Mall</p>
+      </div>
+      <div class="panel-search">
+        <input class="panel-search-in" id="prod-search" placeholder="🔍 Buscar producto..." oninput="filterProds()">
+      </div>
+      <div class="prod-list" id="prod-list">
+        <div class="empty-state"><div class="eico">📦</div>No hay productos aún</div>
+      </div>
+      <button class="btn-add-prod" onclick="openModal('add-prod-modal')">＋ Agregar producto al catálogo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Compartir Producto en Chat -->
+<div class="modal-ov hidden" id="prod-modal" onclick="ovClick(event,'prod-modal')">
+  <div class="modal">
+    <h3>📦 ENVIAR PRODUCTO</h3>
+    <div class="img-drop" onclick="document.getElementById('p-img-inp').click()">
+      <div class="img-drop-txt" id="p-img-txt">📷 Clic para agregar imagen del producto</div>
+      <img id="p-img-prev" src="" alt="">
+    </div>
+    <input type="file" id="p-img-inp" accept="image/*" style="display:none" onchange="onProdImg(event)">
+    <input class="min" id="p-name" placeholder="Nombre del producto" type="text">
+    <textarea class="min mta" id="p-desc" placeholder="Descripción del producto"></textarea>
+    <input class="min" id="p-price" placeholder="Precio (ej: RD$ 2,500)" type="text">
+    <div class="mfooter">
+      <button class="btn-cancel" onclick="closeModal('prod-modal')">Cancelar</button>
+      <button class="btn-ok" onclick="sendProdMsg()">Enviar al chat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Agregar al Catálogo -->
+<div class="modal-ov hidden" id="add-prod-modal" onclick="ovClick(event,'add-prod-modal')">
+  <div class="modal">
+    <h3>➕ NUEVO PRODUCTO</h3>
+    <div class="img-drop" onclick="document.getElementById('c-img-inp').click()">
+      <div class="img-drop-txt" id="c-img-txt">📷 Imagen del producto (opcional)</div>
+      <img id="c-img-prev" src="" alt="">
+    </div>
+    <input type="file" id="c-img-inp" accept="image/*" style="display:none" onchange="onCatImg(event)">
+    <input class="min" id="c-name" placeholder="Nombre del producto" type="text">
+    <textarea class="min mta" id="c-desc" placeholder="Descripción breve"></textarea>
+    <input class="min" id="c-price" placeholder="Precio (ej: RD$ 1,200)" type="text">
+    <div class="mfooter">
+      <button class="btn-cancel" onclick="closeModal('add-prod-modal')">Cancelar</button>
+      <button class="btn-ok" onclick="addToCatalog()">Agregar al catálogo</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONFIGURACIÓN DE USUARIOS DEL SISTEMA
+   Para agregar más empleados, añade aquí
+═══════════════════════════════════════════ */
+const USERS = {
+  'manuel': { email:'manuel@kindomall.app', pass:'M1234', display:'Manuel', role:'Empleado', color:'#1d4ed8' },
+  'admin':  { email:'admin@kindomall.app',  pass:'admin1234', display:'Admin', role:'Administrador', color:'#cc0000' }
 };
 
-// ══ DETALLE ══
-window.openDetail=id=>{
-  const p=products.find(x=>x.id===id); if(!p)return;
-  $("d-badge").textContent="Kindo Mall · "+(p.tipo||"");
-  $("d-name").textContent=p.name;
-  $("d-ref").innerHTML="<b>Referencia:</b> "+p.ref;
-  $("d-tallas").innerHTML=p.tallas?"<b>Tallas:</b> "+p.tallas:"";
-  $("d-precio").textContent=p.precio?"RD$"+p.precio:"";
-  if(p.img){$("d-img").src=p.img;$("d-img").style.display="block";$("d-noimg").style.display="none";}
-  else{$("d-img").style.display="none";$("d-noimg").style.display="flex";}
-  $("d-colores").innerHTML=p.colores?`<div style="font-size:12px;color:#64748b;margin-bottom:8px"><b>Colores disponibles:</b></div><div style="display:flex;gap:8px;flex-wrap:wrap">${(p.colores).split(",").map(c=>c.trim()).filter(Boolean).map(c=>`<div style="display:flex;align-items:center;gap:5px"><div style="width:16px;height:16px;border-radius:50%;background:${getColorDot(c)};border:1.5px solid #e5e0d8"></div><span style="font-size:12px;color:#94a3b8">${c}</span></div>`).join("")}</div>`:"";
-  $("modal-detail").style.display="flex";
-};
+let db, auth, stor, me = null, selImg = null, prodImg = null, catImg = null;
+let allProducts = [];
+let unsubMsgs, unsubProds, unsubPres;
 
-// ══ FORMULARIO ══
-function resetForm(){
-  uploadedUrl="";
-  ["f-name","f-ref","f-tallas","f-colores","f-precio","f-img"].forEach(id=>$(id).value="");
-  $("f-tipo").value="Top";
-  $("img-preview").style.display="none";
-  $("upload-hint").style.display="block";
-  $("progress-wrap").style.display="none";
-  $("progress-bar").style.width="0%";
-  $("upload-status").style.display="none";
+/* ══ SETUP ══ */
+function saveConfig(){
+  const cfg = {
+    apiKey: v('cfg-apiKey'), authDomain: v('cfg-authDomain'),
+    projectId: v('cfg-projectId'), storageBucket: v('cfg-storageBucket'),
+    messagingSenderId: v('cfg-msgSenderId'), appId: v('cfg-appId')
+  };
+  if(!cfg.apiKey || !cfg.projectId){
+    showErr('setup-err','Ingresa al menos el API Key y Project ID');return;
+  }
+  localStorage.setItem('km_cfg', JSON.stringify(cfg));
+  initFB(cfg);
 }
 
-window.openAdd=()=>{
-  editId=null; resetForm();
-  $("form-badge").textContent="Kindo Mall · Nuevo Producto";
-  $("form-title").textContent="Agregar al Catálogo";
-  $("submit-btn").textContent="Agregar Producto";
-  $("modal-form").style.display="flex";
-};
-
-window.openEdit=id=>{
-  const p=products.find(x=>x.id===id); if(!p)return;
-  editId=id; resetForm();
-  uploadedUrl=p.img||"";
-  $("f-name").value=p.name||""; $("f-ref").value=p.ref||"";
-  $("f-tallas").value=p.tallas||""; $("f-colores").value=p.colores||"";
-  $("f-precio").value=p.precio||""; $("f-img").value=p.img||"";
-  $("f-tipo").value=p.tipo||"Top";
-  if(p.img){$("img-preview").src=p.img;$("img-preview").style.display="block";$("upload-hint").style.display="none";}
-  $("form-badge").textContent="Kindo Mall · Editar Producto";
-  $("form-title").textContent=p.name;
-  $("submit-btn").textContent="Guardar Cambios";
-  $("modal-form").style.display="flex";
-};
-
-// ══ SUBIR FOTO A IMGBB ══
-window.handleFile=async e=>{
-  const file=e.target.files[0]; if(!file)return;
-
-  // Preview local inmediato
-  const reader=new FileReader();
-  reader.onload=ev=>{$("img-preview").src=ev.target.result;$("img-preview").style.display="block";$("upload-hint").style.display="none";};
-  reader.readAsDataURL(file);
-
-  // Validar que la key esté configurada
-  if(IMGBB_KEY==="TU_API_KEY_IMGBB"){
-    toast("⚠️ Configura tu API key de ImgBB primero");
-    return;
-  }
-
-  // Subir a ImgBB
-  const btn=$("submit-btn");
-  $("progress-wrap").style.display="block";
-  $("upload-status").style.display="block";
-  $("upload-status").textContent="⏳ Subiendo foto a ImgBB...";
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Subiendo...';
-
-  // Simular progreso visual mientras sube
-  let prog=0;
-  const interval=setInterval(()=>{prog=Math.min(prog+8,90);$("progress-bar").style.width=prog+"%";},200);
-
+function initFB(cfg){
   try{
-    const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});
-    const form=new FormData();
-    form.append("image",base64);
-    form.append("key",IMGBB_KEY);
+    if(!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.firestore();
+    auth = firebase.auth();
+    stor = firebase.storage();
+    hide('setup-screen');
+    show('login-screen');
+    initAccounts();
+  }catch(e){ showErr('setup-err','Error: '+e.message); }
+}
 
-    const resp=await fetch("https://api.imgbb.com/1/upload",{method:"POST",body:form});
-    const data=await resp.json();
-
-    clearInterval(interval);
-
-    if(data.success){
-      uploadedUrl=data.data.url;
-      $("f-img").value=uploadedUrl;
-      $("progress-bar").style.width="100%";
-      $("upload-status").textContent="✅ Foto subida correctamente";
-      $("upload-status").style.color="#059669";
-      toast("✅ Foto guardada en ImgBB");
-    } else {
-      throw new Error(data.error?.message||"Error desconocido");
-    }
-  }catch(err){
-    clearInterval(interval);
-    $("upload-status").textContent="❌ Error: "+err.message;
-    $("upload-status").style.color="#dc2626";
-    toast("❌ Error al subir: "+err.message);
+async function initAccounts(){
+  for(const [u,d] of Object.entries(USERS)){
+    try{
+      await auth.createUserWithEmailAndPassword(d.email,d.pass);
+      await auth.currentUser.updateProfile({displayName:d.display});
+      await auth.signOut();
+    }catch(e){ /* already exists */ }
   }
+}
 
-  btn.disabled=false;
-  btn.textContent=editId?"Guardar Cambios":"Agregar Producto";
-};
-
-window.updatePreviewUrl=()=>{
-  const v=$("f-img").value; uploadedUrl=v;
-  if(v){$("img-preview").src=v;$("img-preview").style.display="block";$("upload-hint").style.display="none";}
-  else{$("img-preview").style.display="none";$("upload-hint").style.display="block";}
-};
-
-// ══ GUARDAR EN FIRESTORE ══
-window.handleSubmit=async()=>{
-  const name=$("f-name").value.trim(), ref2=$("f-ref").value.trim();
-  if(!name||!ref2)return alert("El nombre y la referencia son obligatorios.");
-  const btn=$("submit-btn"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Guardando...';
-  const img=uploadedUrl||$("f-img").value.trim();
-  const data={name,ref:ref2,tallas:$("f-tallas").value.trim(),colores:$("f-colores").value.trim(),precio:$("f-precio").value.trim(),tipo:$("f-tipo").value,img,updatedAt:serverTimestamp()};
+/* ══ AUTH ══ */
+async function doLogin(){
+  const user = v('l-user').toLowerCase().trim();
+  const pass = v('l-pass');
+  const ud = USERS[user];
+  if(!ud){ showErr('l-err','Usuario o contraseña incorrectos.'); return; }
+  g('btn-login').textContent='Verificando...';
   try{
-    if(editId){await updateDoc(doc(db,"productos",editId),data);toast("✅ Producto actualizado");}
-    else{data.createdAt=serverTimestamp();await addDoc(collection(db,"productos"),data);toast("✅ Producto agregado");}
-    $("modal-form").style.display="none";
-  }catch(err){toast("❌ Firestore: "+err.message);console.error(err);}
-  btn.disabled=false; btn.textContent=editId?"Guardar Cambios":"Agregar Producto";
-};
+    const cr = await auth.signInWithEmailAndPassword(ud.email, pass);
+    me = { uid:cr.user.uid, key:user, display:ud.display, role:ud.role, color:ud.color };
+    await db.collection('presence').doc(user).set({
+      display:ud.display, role:ud.role, online:true, lastSeen:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    hide('login-screen');
+    g('app').style.display='flex';
+    g('app').style.flexDirection='column';
+    setupTopbar();
+    subMsgs(); subProds(); subPres();
+    g('l-err').style.display='none';
+  }catch(e){
+    showErr('l-err','Usuario o contraseña incorrectos.');
+    g('btn-login').textContent='Entrar al sistema →';
+  }
+}
 
-// ══ ELIMINAR ══
-window.handleDelete=async id=>{
-  if(!confirm("¿Eliminar este producto?"))return;
-  try{await deleteDoc(doc(db,"productos",id));toast("🗑 Producto eliminado");}
-  catch(err){toast("❌ Error: "+err.message);}
-};
+async function doLogout(){
+  if(me) await db.collection('presence').doc(me.key).update({online:false});
+  await auth.signOut();
+  location.reload();
+}
 
-// ══ INIT ══
-showPublic();
+g('l-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+
+/* ══ TOPBAR ══ */
+function setupTopbar(){
+  const av = g('hdr-ava');
+  av.textContent = me.display[0].toUpperCase();
+  av.style.background = me.color;
+  av.style.color = 'white';
+  g('hdr-name').textContent = me.display;
+  g('hdr-role').textContent = me.role.toUpperCase();
+}
+
+/* ══ MESSAGES ══ */
+function subMsgs(){
+  if(unsubMsgs) unsubMsgs();
+  unsubMsgs = db.collection('messages')
+    .orderBy('ts','asc').limitToLast(120)
+    .onSnapshot(snap=>{
+      const c = g('chat-msgs');
+      c.innerHTML='<div class="date-divider"><span>Hoy</span></div>';
+      snap.forEach(doc=>renderMsg(doc.data(), doc.id));
+      c.scrollTop = c.scrollHeight;
+    });
+}
+
+function renderMsg(m, id){
+  const c = g('chat-msgs');
+  const isOwn = m.username === me.key;
+  const uc = USERS[m.username]||{color:'#444',display:m.username};
+  const ts = m.ts ? new Date(m.ts.seconds*1000).toLocaleTimeString('es-DO',{hour:'2-digit',minute:'2-digit'}) : '';
+  const row = document.createElement('div');
+  row.className = 'msg-row'+(isOwn?' own':'');
+  row.dataset.id = id;
+  let inner = '';
+  if(m.type==='product'){
+    inner = buildPCard(m);
+  } else if(m.type==='image'){
+    inner = `<div class="msg-bubble"><img class="msg-img" src="${esc(m.imgUrl)}" alt="img" onclick="window.open('${esc(m.imgUrl)}','_blank')">${m.text?`<div style="margin-top:.3rem">${esc(m.text)}</div>`:''}</div>`;
+  } else {
+    inner = `<div class="msg-bubble">${esc(m.text||'').replace(/\n/g,'<br>')}</div>`;
+  }
+  row.innerHTML=`
+    <div class="msg-ava" style="background:${uc.color};color:white">${(m.display||m.username)[0].toUpperCase()}</div>
+    <div class="msg-body">
+      <div class="msg-meta"><span class="msg-sender">${esc(m.display||m.username)}</span><span class="msg-time">${ts}</span></div>
+      ${inner}
+    </div>`;
+  c.appendChild(row);
+}
+
+function buildPCard(m){
+  const waMsg = `*${m.pName}*\n${m.pDesc||''}\nPrecio: ${m.pPrice||''}\n\nKindo Mall 🛍️`;
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
+  return `<div class="pcard-msg">
+    ${m.imgUrl?`<img src="${esc(m.imgUrl)}" alt="">` : '<div class="pcard-no-img">📦</div>'}
+    <div class="pcard-body">
+      <div class="pcard-tag">📦 PRODUCTO KINDO MALL</div>
+      <div class="pcard-name">${esc(m.pName||'')}</div>
+      <div class="pcard-desc">${esc(m.pDesc||'')}</div>
+      <div class="pcard-price">${esc(m.pPrice||'')}</div>
+      <div class="pcard-actions">
+        <button class="btn-wa" onclick="window.open('${waUrl}','_blank')">📲 WhatsApp</button>
+        <button class="btn-copy-wa" onclick="copyText('${esc(waMsg.replace(/'/g,"\\'"))}')">Copiar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function sendMsg(){
+  const txt = v('msg-in').trim();
+  if(selImg){ await sendImgMsg(txt); return; }
+  if(!txt) return;
+  g('msg-in').value=''; autoH(g('msg-in'));
+  await db.collection('messages').add({
+    type:'text', text:txt, username:me.key, display:me.display,
+    ts:firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function sendImgMsg(cap){
+  if(!selImg) return;
+  toast('Subiendo imagen...');
+  try{
+    const ref = stor.ref(`chat/${Date.now()}_${selImg.name}`);
+    await ref.put(selImg);
+    const url = await ref.getDownloadURL();
+    await db.collection('messages').add({
+      type:'image', text:cap, imgUrl:url, username:me.key, display:me.display,
+      ts:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    g('msg-in').value=''; clearImg(); toast('✓ Imagen enviada');
+  }catch(e){ toast('Error: '+e.message); }
+}
+
+async function sendProdMsg(){
+  const name = v('p-name').trim();
+  const desc = v('p-desc').trim();
+  const price = v('p-price').trim();
+  if(!name){ toast('Escribe el nombre del producto'); return; }
+  closeModal('prod-modal'); toast('Enviando...');
+  let imgUrl='';
+  if(prodImg){
+    try{
+      const ref = stor.ref(`prod-imgs/${Date.now()}_${prodImg.name}`);
+      await ref.put(prodImg); imgUrl = await ref.getDownloadURL();
+    }catch(e){}
+  }
+  await db.collection('messages').add({
+    type:'product', pName:name, pDesc:desc, pPrice:price, imgUrl,
+    username:me.key, display:me.display, ts:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  resetProdForm(); toast('✓ Producto compartido');
+}
+
+function resetProdForm(){
+  ['p-name','p-desc','p-price'].forEach(id=>g(id).value='');
+  g('p-img-prev').style.display='none'; g('p-img-txt').style.display='block'; prodImg=null;
+}
+
+/* ══ CATALOG ══ */
+function subProds(){
+  if(unsubProds) unsubProds();
+  unsubProds = db.collection('products').orderBy('ca','desc').onSnapshot(snap=>{
+    allProducts=[];
+    snap.forEach(doc=>allProducts.push({id:doc.id,...doc.data()}));
+    renderProds(allProducts);
+  });
+}
+
+function filterProds(){
+  const q = v('prod-search').toLowerCase();
+  const filtered = q ? allProducts.filter(p=>(p.name||'').toLowerCase().includes(q)) : allProducts;
+  renderProds(filtered);
+}
+
+function renderProds(list){
+  const el = g('prod-list');
+  if(!list.length){ el.innerHTML='<div class="empty-state"><div class="eico">📦</div>Sin productos</div>'; return; }
+  el.innerHTML='';
+  list.forEach(p=>{
+    const d = document.createElement('div');
+    d.className='panel-pcard';
+    d.innerHTML=`
+      ${p.img?`<img src="${esc(p.img)}" alt="">` : '<div class="panel-pcard-no-img">📦</div>'}
+      <div class="panel-pcard-body">
+        <div class="panel-pcard-name">${esc(p.name||'')}</div>
+        <div class="panel-pcard-desc">${esc(p.desc||'')}</div>
+        <div class="panel-pcard-foot">
+          <div class="panel-pcard-price">${esc(p.price||'')}</div>
+          <div style="display:flex;gap:.3rem">
+            <button class="btn-shr" onclick="shareFromCatalog('${p.id}')">Chat</button>
+            <button class="btn-shr" onclick="waProduct('${p.id}')">📲</button>
+            ${me&&me.role==='Administrador'?`<button class="btn-del" onclick="delProd('${p.id}')">🗑</button>`:''}
+          </div>
+        </div>
+      </div>`;
+    g('prod-list').appendChild(d);
+  });
+}
+
+async function addToCatalog(){
+  const name = v('c-name').trim();
+  const desc = v('c-desc').trim();
+  const price = v('c-price').trim();
+  if(!name){ toast('Ingresa el nombre'); return; }
+  closeModal('add-prod-modal'); toast('Guardando...');
+  let img='';
+  if(catImg){
+    try{
+      const ref = stor.ref(`catalog/${Date.now()}_${catImg.name}`);
+      await ref.put(catImg); img = await ref.getDownloadURL();
+    }catch(e){}
+  }
+  await db.collection('products').add({ name, desc, price, img, by:me.key, ca:firebase.firestore.FieldValue.serverTimestamp() });
+  ['c-name','c-desc','c-price'].forEach(id=>g(id).value='');
+  g('c-img-prev').style.display='none'; g('c-img-txt').style.display='block'; catImg=null;
+  toast('✓ Producto agregado al catálogo');
+}
+
+async function shareFromCatalog(id){
+  const p = allProducts.find(x=>x.id===id); if(!p) return;
+  await db.collection('messages').add({
+    type:'product', pName:p.name, pDesc:p.desc, pPrice:p.price, imgUrl:p.img||'',
+    username:me.key, display:me.display, ts:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  toast(`✓ ${p.name} compartido en el chat`);
+}
+
+function waProduct(id){
+  const p = allProducts.find(x=>x.id===id); if(!p) return;
+  const txt = `*${p.name}*\n${p.desc||''}\nPrecio: ${p.price||''}\n\nKindo Mall 🛍️`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
+}
+
+async function delProd(id){
+  if(!confirm('¿Eliminar este producto del catálogo?')) return;
+  await db.collection('products').doc(id).delete();
+  toast('Producto eliminado');
+}
+
+/* ══ PRESENCE ══ */
+function subPres(){
+  if(unsubPres) unsubPres();
+  unsubPres = db.collection('presence').onSnapshot(snap=>{
+    const el = g('emp-list'); el.innerHTML='';
+    let online=0;
+    snap.forEach(doc=>{
+      const p=doc.data(); if(p.online) online++;
+      const uc = USERS[doc.id]||{color:'#444'};
+      const d = document.createElement('div');
+      d.className='emp-item';
+      d.innerHTML=`
+        <div class="dot ${p.online?'on':'off'}"></div>
+        <div class="ava" style="width:26px;height:26px;font-size:.68rem;background:${uc.color};color:white">${(p.display||doc.id)[0].toUpperCase()}</div>
+        <div><div class="emp-name" style="color:${p.online?'var(--w2)':'var(--w4)'}">${esc(p.display||doc.id)}</div><div class="emp-role-tag">${esc(p.role||'')}</div></div>`;
+      el.appendChild(d);
+    });
+    g('online-badge').textContent = online+' en línea';
+  });
+}
+
+/* ══ FILES ══ */
+function onFile(e){
+  const f=e.target.files[0]; if(!f) return;
+  selImg=f;
+  const r=new FileReader();
+  r.onload=ev=>{
+    g('prev-thumb').src=ev.target.result;
+    g('prev-name').textContent=f.name;
+    show2('img-prev-bar');
+  };
+  r.readAsDataURL(f); e.target.value='';
+}
+function clearImg(){ selImg=null; hide('img-prev-bar'); g('prev-thumb').src=''; }
+
+function onProdImg(e){
+  const f=e.target.files[0]; if(!f) return; prodImg=f;
+  const r=new FileReader();
+  r.onload=ev=>{ g('p-img-prev').src=ev.target.result; g('p-img-prev').style.display='block'; g('p-img-txt').style.display='none'; };
+  r.readAsDataURL(f); e.target.value='';
+}
+function onCatImg(e){
+  const f=e.target.files[0]; if(!f) return; catImg=f;
+  const r=new FileReader();
+  r.onload=ev=>{ g('c-img-prev').src=ev.target.result; g('c-img-prev').style.display='block'; g('c-img-txt').style.display='none'; };
+  r.readAsDataURL(f); e.target.value='';
+}
+
+/* ══ WHATSAPP ══ */
+function waText(){
+  const txt = v('msg-in').trim();
+  if(!txt){ toast('Escribe un mensaje primero'); return; }
+  window.open(`https://wa.me/?text=${encodeURIComponent('*Kindo Mall* 🛍️\n\n'+txt)}`, '_blank');
+}
+
+/* ══ UTILS ══ */
+function g(id){ return document.getElementById(id); }
+function v(id){ return g(id).value.trim(); }
+function hide(id){ g(id).classList.add('hidden'); }
+function show(id){ g(id).classList.remove('hidden'); }
+function show2(id){ g(id).classList.remove('hidden'); }
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function onKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(); } }
+function autoH(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
+function openModal(id){ g(id).classList.remove('hidden'); }
+function closeModal(id){ g(id).classList.add('hidden'); }
+function ovClick(e,id){ if(e.target===g(id)) closeModal(id); }
+function showErr(id, msg){ const el=g(id); el.textContent=msg; el.style.display='block'; }
+
+let toastT;
+function toast(msg){
+  const t=g('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function copyText(txt){
+  navigator.clipboard.writeText(txt).then(()=>toast('✓ Copiado al portapapeles')).catch(()=>toast('No se pudo copiar'));
+}
+
+/* ══ BOOT ══ */
+window.addEventListener('DOMContentLoaded',()=>{
+  const saved = localStorage.getItem('km_cfg');
+  if(saved){ try{ initFB(JSON.parse(saved)); }catch(e){ localStorage.removeItem('km_cfg'); } }
+});
 </script>
 </body>
 </html>
