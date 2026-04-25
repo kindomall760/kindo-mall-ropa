@@ -579,9 +579,10 @@ input,textarea,button{font-family:var(--fb);}
    CONFIGURACIÓN DE USUARIOS DEL SISTEMA
    Para agregar más empleados, añade aquí
 ═══════════════════════════════════════════ */
+// userPass = lo que escribe el empleado | fbPass = contraseña real Firebase (min 6 chars)
 const USERS = {
-  'manuel': { email:'manuel@kindomall.app', pass:'M1234', display:'Manuel', role:'Empleado', color:'#1d4ed8' },
-  'admin':  { email:'admin@kindomall.app',  pass:'admin1234', display:'Admin', role:'Administrador', color:'#cc0000' }
+  'manuel': { email:'manuel@kindomall.app', userPass:'M123456', fbPass:'M123456', display:'Manuel', role:'Empleado', color:'#1d4ed8' },
+  'admin':  { email:'admin@kindomall.app',  userPass:'admin1234', fbPass:'admin1234', display:'Admin', role:'Administrador', color:'#cc0000' }
 };
 
 let db, auth, stor, me = null, selImg = null, prodImg = null, catImg = null;
@@ -617,7 +618,7 @@ function initFB(cfg){
 async function initAccounts(){
   for(const [u,d] of Object.entries(USERS)){
     try{
-      await auth.createUserWithEmailAndPassword(d.email,d.pass);
+      await auth.createUserWithEmailAndPassword(d.email,d.fbPass);
       await auth.currentUser.updateProfile({displayName:d.display});
       await auth.signOut();
     }catch(e){ /* already exists */ }
@@ -629,10 +630,15 @@ async function doLogin(){
   const user = v('l-user').toLowerCase().trim();
   const pass = v('l-pass');
   const ud = USERS[user];
-  if(!ud){ showErr('l-err','Usuario o contraseña incorrectos.'); return; }
+  if(!ud || pass !== ud.userPass){ showErr('l-err','Usuario o contraseña incorrectos.'); return; }
   g('btn-login').textContent='Verificando...';
   try{
-    const cr = await auth.signInWithEmailAndPassword(ud.email, pass);
+    // Intentar crear cuenta si no existe aun
+    try{
+      await auth.createUserWithEmailAndPassword(ud.email, ud.fbPass);
+      await auth.currentUser.updateProfile({displayName:ud.display});
+    }catch(ce){ /* ya existe, ok */ }
+    const cr = await auth.signInWithEmailAndPassword(ud.email, ud.fbPass);
     me = { uid:cr.user.uid, key:user, display:ud.display, role:ud.role, color:ud.color };
     await db.collection('presence').doc(user).set({
       display:ud.display, role:ud.role, online:true, lastSeen:firebase.firestore.FieldValue.serverTimestamp()
@@ -936,8 +942,15 @@ function copyText(txt){
 
 /* ══ BOOT ══ */
 window.addEventListener('DOMContentLoaded',()=>{
-  const saved = localStorage.getItem('km_cfg');
-  if(saved){ try{ initFB(JSON.parse(saved)); }catch(e){ localStorage.removeItem('km_cfg'); } }
+  const cfg = {
+    apiKey: "AIzaSyDwA1I9WBltnNZF5rjLjBsXHWh1ek5db_g",
+    authDomain: "kindo-delivery.firebaseapp.com",
+    projectId: "kindo-delivery",
+    storageBucket: "kindo-delivery.firebasestorage.app",
+    messagingSenderId: "655777295049",
+    appId: "1:655777295049:web:9b3a90204ae4d8af98bb18"
+  };
+  initFB(cfg);
 });
 </script>
 </body>
