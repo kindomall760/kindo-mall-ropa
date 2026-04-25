@@ -66,13 +66,13 @@ img{display:block;}
 .lbody h3{font-family:var(--fh);font-size:1.4rem;letter-spacing:1.5px;margin-bottom:.2rem;}
 .lsub{font-size:.76rem;color:var(--w4);margin-bottom:1.6rem;}
 .flbl{display:block;font-size:.68rem;color:var(--w3);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.38rem;}
-.finp{
+.finp-l{
   width:100%;background:var(--bg4);border:1px solid #252525;
   color:var(--w1);padding:.82rem 1rem;border-radius:10px;
   font-size:1rem;outline:none;transition:all .2s;margin-bottom:1rem;
 }
-.finp:focus{border-color:var(--red);background:var(--bg5);}
-.finp::placeholder{color:var(--w4);}
+.finp-l:focus{border-color:var(--red);background:var(--bg5);}
+.finp-l::placeholder{color:var(--w4);}
 .lerr{
   background:rgba(204,0,0,0.09);border:1px solid rgba(204,0,0,0.25);
   border-radius:8px;padding:.55rem .85rem;font-size:.8rem;color:#ff7070;
@@ -198,7 +198,7 @@ img{display:block;}
   background:var(--bg4);border:1px solid #222;
   border-radius:12px;overflow:hidden;max-width:280px;width:280px;
 }
-.pcard-img{width:100%;height:145px;object-fit:cover;}
+.pcard-img{width:100%;height:145px;object-fit:cover;cursor:zoom-in;}
 .pcard-noimg{
   width:100%;height:90px;background:var(--bg5);
   display:flex;align-items:center;justify-content:center;font-size:2rem;
@@ -280,7 +280,7 @@ img{display:block;}
 .plist::-webkit-scrollbar{width:3px;}
 .plist::-webkit-scrollbar-thumb{background:#222;border-radius:4px;}
 .pitem{background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;}
-.pitem img{width:100%;height:90px;object-fit:cover;}
+.pitem img{width:100%;height:90px;object-fit:cover;cursor:zoom-in;}
 .pitem-noimg{width:100%;height:68px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
 .pitem-body{padding:.52rem .62rem;}
 .pitem-name{font-size:.82rem;font-weight:600;color:var(--w1);margin-bottom:.1rem;}
@@ -288,9 +288,9 @@ img{display:block;}
 .pitem-foot{display:flex;align-items:center;justify-content:space-between;gap:.3rem;}
 .pitem-price{font-size:.88rem;font-weight:700;color:var(--red);}
 .pitem-btns{display:flex;gap:.25rem;}
-.bshr{background:none;border:1px solid #252525;color:var(--w4);padding:.16rem .42rem;border-radius:5px;font-size:.67rem;}
+.bshr{background:none;border:1px solid #252525;color:var(--w4);padding:.18rem .44rem;border-radius:5px;font-size:.7rem;}
 .bshr:hover{border-color:var(--red);color:var(--red);}
-.bdel{background:none;border:1px solid #252525;color:var(--w4);padding:.16rem .4rem;border-radius:5px;font-size:.67rem;}
+.bdel{background:none;border:1px solid #252525;color:var(--w4);padding:.18rem .42rem;border-radius:5px;font-size:.7rem;}
 .bdel:hover{border-color:#e55;color:#e55;}
 .padd-btn{
   margin:.55rem .65rem;background:var(--bg4);border:1px dashed #252525;
@@ -318,10 +318,10 @@ img{display:block;}
 .mi:focus{border-color:var(--red);}
 .mi::placeholder{color:var(--w4);}
 .mta{resize:vertical;min-height:70px;}
-.idrop{border:1px dashed #2a2a2a;border-radius:10px;padding:.9rem;text-align:center;margin-bottom:.55rem;cursor:pointer;transition:border-color .2s;overflow:hidden;}
+.idrop{border:1px dashed #2a2a2a;border-radius:10px;padding:.9rem;text-align:center;margin-bottom:.55rem;cursor:pointer;transition:border-color .2s;}
 .idrop:hover{border-color:var(--red);}
 .idtxt{font-size:.78rem;color:var(--w4);}
-.idrop img{max-width:100%;max-height:150px;border-radius:8px;display:none;margin:0 auto;}
+.idrop img{max-width:100%;max-height:150px;border-radius:8px;display:none;margin:.5rem auto 0;}
 .mfooter{display:flex;gap:.45rem;margin-top:.75rem;}
 .bcan{flex:1;background:none;border:1px solid #252525;color:var(--w4);padding:.7rem;border-radius:9px;font-size:.87rem;}
 .bcan:hover{border-color:#444;color:var(--w2);}
@@ -366,9 +366,7 @@ img{display:block;}
   .mob-ibtns{display:none!important;}
   .chead{display:none;}
 }
-.mob-ibtns{
-  flex-wrap:wrap;
-}
+.mob-ibtns{flex-wrap:wrap;}
 .mob-ibtns .ibtn{
   background:var(--bg4);border:1px solid var(--bdr);color:var(--w3);
   padding:.3rem .65rem;border-radius:8px;font-size:.74rem;
@@ -389,9 +387,9 @@ img{display:block;}
       <h3>ACCESO</h3>
       <div class="lsub">Ingresa tus credenciales de empleado</div>
       <label class="flbl">Usuario</label>
-      <input class="finp" id="lu" type="text" placeholder="Ej: manuel" autocomplete="off" autocapitalize="none">
+      <input class="finp-l" id="lu" type="text" placeholder="Ej: manuel" autocomplete="off" autocapitalize="none">
       <label class="flbl">Contraseña</label>
-      <input class="finp" id="lp" type="password" placeholder="••••••••">
+      <input class="finp-l" id="lp" type="password" placeholder="••••••••">
       <div class="lerr" id="lerr"></div>
       <button class="btnr" id="btnl" onclick="doLogin()">Entrar al sistema →</button>
     </div>
@@ -439,7 +437,7 @@ img{display:block;}
         <div class="sitem">📣 anuncios</div>
       </div>
       <div class="sdiv"></div>
-      <div class="ssec"><div class="slbl">Empleados en línea</div></div>
+      <div class="ssec"><div class="slbl">Empleados</div></div>
       <div class="elist" id="elist">
         <div style="font-size:.75rem;color:var(--w4);padding:.3rem .45rem;">Cargando...</div>
       </div>
@@ -447,7 +445,7 @@ img{display:block;}
 
     <!-- Chat main -->
     <div class="cmain">
-      <!-- Mobile chat header with action buttons -->
+      <!-- Mobile chat header -->
       <div class="chead">
         <span class="chead-ico">💬</span>
         <div>
@@ -462,7 +460,7 @@ img{display:block;}
         <div class="empty-state"><div class="empty-ico">💬</div><span>Sé el primero en escribir</span></div>
       </div>
 
-      <!-- Image preview -->
+      <!-- Image preview bar -->
       <div id="ipbar" class="H">
         <div class="iprow">
           <img id="ithumb" src="" alt="">
@@ -561,22 +559,23 @@ img{display:block;}
 <script>
 /* ══════════════════════════════════════════
    USUARIOS DEL SISTEMA
-   Agrega más empleados aquí si necesitas
+   Para agregar empleados: añade una entrada
+   con { pass, display, role, color }
 ══════════════════════════════════════════ */
 const USERS = {
-  'manuel': { email:'manuel@kindomall.app', pass:'M123456',   display:'Manuel', role:'Empleado',      color:'#1d4ed8' },
-  'admin':  { email:'admin@kindomall.app',  pass:'admin1234', display:'Admin',   role:'Administrador', color:'#cc0000' }
+  'manuel': { pass:'M123456',   display:'Manuel', role:'Empleado',      color:'#1d4ed8' },
+  'admin':  { pass:'admin1234', display:'Admin',   role:'Administrador', color:'#cc0000' }
 };
 
 /* ══ Estado global ══ */
 let ME = null;
-let selImg=null, pImg=null, cImg=null;
-let allProds=[];
-let unMsgs=null, unProds=null, unPres=null;
+let selImg = null, pImg = null, cImg = null;
+let allProds = [];
+let unMsgs = null, unProds = null, unPres = null;
 
 /* ══ Helpers ══ */
-const G  = id => document.getElementById(id);
-const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const G   = id => document.getElementById(id);
+const esc = s  => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const ts  = () => firebase.firestore.FieldValue.serverTimestamp();
 
 function openM(id){ G(id).classList.remove('H'); }
@@ -585,29 +584,30 @@ function ovC(e,id){ if(e.target===G(id)) closeM(id); }
 function showErr(id,msg){ const el=G(id); el.textContent=msg; el.style.display='block'; }
 
 let toastT;
-function toast(msg,err=false){
-  const t=G('toast');
-  t.textContent=msg;
-  t.style.borderLeftColor=err?'#e55':'var(--red)';
+function toast(msg, err=false){
+  const t = G('toast');
+  t.textContent = msg;
+  t.style.borderLeftColor = err ? '#e55' : 'var(--red)';
   t.classList.add('show');
   clearTimeout(toastT);
-  toastT=setTimeout(()=>t.classList.remove('show'),3500);
+  toastT = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
 function autoH(el){
-  el.style.height='auto';
-  el.style.height=Math.min(el.scrollHeight,120)+'px';
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
 function onKey(e){
-  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(); }
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); }
 }
 
 /* ══ Mobile tabs ══ */
 function showTab(tab){
-  const sb=G('sidebar'), pp=G('ppanel');
-  const tabs=document.querySelectorAll('.mtab');
-  tabs.forEach((t,i)=>t.classList.toggle('act', ['sidebar','chat','ppanel'][i]===tab));
+  const sb = G('sidebar'), pp = G('ppanel');
+  document.querySelectorAll('.mtab').forEach((t,i) =>
+    t.classList.toggle('act', ['sidebar','chat','ppanel'][i] === tab)
+  );
   if(tab==='sidebar'){ sb.classList.add('open'); pp.classList.remove('open'); }
   else if(tab==='ppanel'){ pp.classList.add('open'); sb.classList.remove('open'); }
   else { sb.classList.remove('open'); pp.classList.remove('open'); }
@@ -615,117 +615,133 @@ function showTab(tab){
 
 /* ══ Image viewer ══ */
 function openImgView(url){
-  G('imgview-img').src=url;
+  G('imgview-img').src = url;
   G('imgview').classList.remove('H');
 }
 function closeImgView(){
   G('imgview').classList.add('H');
-  G('imgview-img').src='';
+  G('imgview-img').src = '';
 }
 
-/* ══ LOGIN ══ */
-G('lp').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+/* ══════════════════════════════════════════
+   LOGIN
+   BUG FIX: Usamos signInAnonymously() en lugar
+   de signInWithEmailAndPassword() para no
+   depender de usuarios pre-creados en Firebase.
+   La autenticación real se valida localmente
+   con el objeto USERS.
+══════════════════════════════════════════ */
+G('lu').addEventListener('keydown', e => { if(e.key==='Enter') G('lp').focus(); });
+G('lp').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
 async function doLogin(){
   const uname = G('lu').value.trim().toLowerCase();
   const pass  = G('lp').value;
-  const ud = USERS[uname];
+  const ud    = USERS[uname];
 
-  if(!ud || pass!==ud.pass){
-    showErr('lerr','❌ Usuario o contraseña incorrectos.');
+  if(!ud || pass !== ud.pass){
+    showErr('lerr', '❌ Usuario o contraseña incorrectos.');
     return;
   }
 
-  const btn=G('btnl');
-  btn.disabled=true; btn.textContent='Verificando...';
-  G('lerr').style.display='none';
+  const btn = G('btnl');
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+  G('lerr').style.display = 'none';
 
-  try{
-    const cred = await auth.signInWithEmailAndPassword(ud.email, ud.pass);
-    ME = { uid:cred.user.uid, key:uname, display:ud.display, role:ud.role, color:ud.color };
+  try {
+    // Autenticación anónima Firebase (credenciales validadas arriba con USERS)
+    await auth.signInAnonymously();
+    ME = { key: uname, display: ud.display, role: ud.role, color: ud.color };
 
     // Registrar presencia online
     await db.collection('presence').doc(uname).set({
-      display:ud.display, role:ud.role, online:true, lastSeen:ts()
+      display: ud.display, role: ud.role, online: true, lastSeen: ts()
     });
 
-    // Marcar offline al cerrar la ventana
-    window.addEventListener('beforeunload', ()=>{
-      db.collection('presence').doc(uname).update({ online:false, lastSeen:ts() });
+    // Marcar offline al cerrar / cambiar de pestaña (mobile-friendly)
+    const goOffline = () => {
+      try { db.collection('presence').doc(ME.key).update({ online: false, lastSeen: ts() }); } catch(e){}
+    };
+    window.addEventListener('beforeunload', goOffline);
+    window.addEventListener('pagehide', goOffline); // iOS Safari
+    document.addEventListener('visibilitychange', () => {
+      if(document.visibilityState === 'hidden') goOffline();
+      else db.collection('presence').doc(ME.key).update({ online: true, lastSeen: ts() }).catch(()=>{});
     });
 
     G('login').classList.add('H');
-    const app=G('app');
-    app.style.display='flex';
-    app.style.flexDirection='column';
+    const app = G('app');
+    app.style.display = 'flex';
+    app.style.flexDirection = 'column';
 
     setupTopbar();
     initChat();
     initProducts();
     initPresence();
 
-  }catch(e){
-    const msg = e.code==='auth/wrong-password'||e.code==='auth/user-not-found'
-      ? '❌ Credenciales incorrectas.'
-      : '❌ Error: '+e.message;
-    showErr('lerr', msg);
-    btn.disabled=false;
-    btn.textContent='Entrar al sistema →';
+  } catch(e) {
+    console.error('Login error:', e);
+    showErr('lerr', '❌ Error de conexión: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Entrar al sistema →';
   }
 }
 
 async function doLogout(){
   if(ME){
-    try{ await db.collection('presence').doc(ME.key).update({online:false,lastSeen:ts()}); }catch(e){}
+    try { await db.collection('presence').doc(ME.key).update({ online: false, lastSeen: ts() }); } catch(e){}
   }
+  if(unMsgs) unMsgs();
+  if(unProds) unProds();
+  if(unPres)  unPres();
   await auth.signOut();
   location.reload();
 }
 
 function setupTopbar(){
-  const av=G('hava');
-  av.textContent=ME.display[0].toUpperCase();
-  av.style.background=ME.color;
-  G('hname').textContent=ME.display;
-  G('hrole').textContent=ME.role.toUpperCase();
+  const av = G('hava');
+  av.textContent = ME.display[0].toUpperCase();
+  av.style.background = ME.color;
+  G('hname').textContent = ME.display;
+  G('hrole').textContent  = ME.role.toUpperCase();
 }
 
 /* ══ CHAT ══ */
 function initChat(){
   if(unMsgs) unMsgs();
   unMsgs = db.collection('messages')
-    .orderBy('ts','asc').limitToLast(200)
-    .onSnapshot(snap=>{
-      const c=G('cmsgs');
-      c.innerHTML='<div class="dsep"><span>Hoy</span></div>';
+    .orderBy('ts', 'asc').limitToLast(200)
+    .onSnapshot(snap => {
+      const c = G('cmsgs');
+      c.innerHTML = '<div class="dsep"><span>Hoy</span></div>';
       if(snap.empty){
-        c.innerHTML+='<div class="empty-state"><div class="empty-ico">💬</div><span>Sé el primero en escribir</span></div>';
+        c.innerHTML += '<div class="empty-state"><div class="empty-ico">💬</div><span>Sé el primero en escribir</span></div>';
         return;
       }
       snap.forEach(doc => renderMsg(doc.data()));
-      c.scrollTop=c.scrollHeight;
-    }, err=>toast('Error al cargar mensajes: '+err.message, true));
+      c.scrollTop = c.scrollHeight;
+    }, err => toast('Error al cargar mensajes: ' + err.message, true));
 }
 
 function renderMsg(m){
-  const c=G('cmsgs');
-  // Quitar el empty state si existe
-  const es=c.querySelector('.empty-state');
+  const c = G('cmsgs');
+  const es = c.querySelector('.empty-state');
   if(es) es.remove();
 
-  const own = m.username===ME.key;
-  const uc  = USERS[m.username]||{color:'#555'};
+  const own = m.username === ME.key;
+  const uc  = USERS[m.username] || { color: '#555' };
   const timeStr = m.ts
-    ? new Date(m.ts.seconds*1000).toLocaleTimeString('es-DO',{hour:'2-digit',minute:'2-digit'})
+    ? new Date(m.ts.seconds * 1000).toLocaleTimeString('es-DO', { hour:'2-digit', minute:'2-digit' })
     : 'Ahora';
 
-  const row=document.createElement('div');
-  row.className='mrow'+(own?' own':'');
+  const row = document.createElement('div');
+  row.className = 'mrow' + (own ? ' own' : '');
 
-  let content='';
-  if(m.type==='product'){
+  let content = '';
+  if(m.type === 'product'){
     content = buildPCard(m);
-  } else if(m.type==='image'){
+  } else if(m.type === 'image'){
     content = `<div>
       <img class="mimg" src="${esc(m.imgUrl)}" alt="Imagen" onclick="openImgView('${esc(m.imgUrl)}')">
       ${m.text ? `<div class="mcap">${esc(m.text).replace(/\n/g,'<br>')}</div>` : ''}
@@ -734,7 +750,7 @@ function renderMsg(m){
     content = `<div class="mbub">${esc(m.text||'').replace(/\n/g,'<br>')}</div>`;
   }
 
-  row.innerHTML=`
+  row.innerHTML = `
     <div class="ava ava-md" style="background:${uc.color||'#555'};color:#fff">
       ${(m.display||m.username||'?')[0].toUpperCase()}
     </div>
@@ -746,13 +762,32 @@ function renderMsg(m){
       ${content}
     </div>`;
   c.appendChild(row);
-  c.scrollTop=c.scrollHeight;
+  c.scrollTop = c.scrollHeight;
 }
 
+/* ══ WhatsApp message builder ══ */
+function buildWaMsg(name, desc, price){
+  let msg = `🛍️ *KINDO MALL*\n\n`;
+  msg += `*${name||''}*`;
+  if(desc)  msg += `\n${desc}`;
+  if(price) msg += `\n\n💰 *Precio: ${price}*`;
+  msg += `\n\n_¿Te interesa? ¡Escríbenos!_ ✅`;
+  return msg;
+}
+
+/* ══════════════════════════════════════════
+   PRODUCT CARD
+   BUG FIX: El botón Copiar usaba JSON.stringify
+   dentro de onclick="..." lo que rompía el HTML
+   con las comillas dobles. Ahora se usa el
+   atributo data-txt con HTML-escape seguro y
+   this.dataset.txt para recuperar el valor.
+══════════════════════════════════════════ */
 function buildPCard(m){
-  const waMsg=`*${m.pName}*\n${m.pDesc||''}\nPrecio: ${m.pPrice||''}\n\n🛍️ Kindo Mall`;
-  const waUrl=`https://wa.me/?text=${encodeURIComponent(waMsg)}`;
-  const copyJs=`copyTxt(${JSON.stringify(waMsg)})`;
+  const waMsg  = buildWaMsg(m.pName, m.pDesc, m.pPrice);
+  const waUrl  = `https://wa.me/?text=${encodeURIComponent(waMsg)}`;
+  const safeTxt = esc(waMsg); // HTML-escaped para data attribute (seguro con comillas dobles)
+
   return `<div class="pcard">
     ${m.imgUrl
       ? `<img class="pcard-img" src="${esc(m.imgUrl)}" alt="" onclick="openImgView('${esc(m.imgUrl)}')">`
@@ -760,120 +795,131 @@ function buildPCard(m){
     <div class="pcard-body">
       <div class="pcard-tag">📦 KINDO MALL</div>
       <div class="pcard-name">${esc(m.pName||'')}</div>
-      ${m.pDesc?`<div class="pcard-desc">${esc(m.pDesc)}</div>`:''}
-      ${m.pPrice?`<div class="pcard-price">${esc(m.pPrice)}</div>`:''}
+      ${m.pDesc  ? `<div class="pcard-desc">${esc(m.pDesc)}</div>`   : ''}
+      ${m.pPrice ? `<div class="pcard-price">${esc(m.pPrice)}</div>` : ''}
       <div class="pcard-btns">
         <button class="btn-wa" onclick="window.open('${waUrl}','_blank')">📲 WhatsApp</button>
-        <button class="btn-copy" onclick="${copyJs}">Copiar</button>
+        <button class="btn-copy" data-txt="${safeTxt}" onclick="copyTxt(this.dataset.txt)">📋 Copiar</button>
       </div>
     </div>
   </div>`;
 }
 
 async function sendMsg(){
-  const txt=G('msgin').value.trim();
+  const txt = G('msgin').value.trim();
   if(selImg){ await sendImgMsg(txt); return; }
   if(!txt) return;
-  G('msgin').value=''; autoH(G('msgin'));
-  try{
+  G('msgin').value = ''; autoH(G('msgin'));
+  try {
     await db.collection('messages').add({
       type:'text', text:txt,
       username:ME.key, display:ME.display, ts:ts()
     });
-  }catch(e){ toast('Error al enviar: '+e.message,true); }
+  } catch(e) { toast('Error al enviar: ' + e.message, true); }
 }
 
 async function sendImgMsg(caption){
   if(!selImg) return;
-  const origImg=selImg;
+  const origImg = selImg;
   clearImg();
   toast('Subiendo imagen...');
-  try{
-    const path=`chat/${Date.now()}_${origImg.name.replace(/\s/g,'_')}`;
-    const ref=stor.ref(path);
-    const snap=await ref.put(origImg);
-    const url=await ref.getDownloadURL();
+  try {
+    const safeName = origImg.name.replace(/[^a-zA-Z0-9.]/g, '_');
+    const ref = stor.ref(`chat/${Date.now()}_${safeName}`);
+    await ref.put(origImg);
+    const url = await ref.getDownloadURL();
     await db.collection('messages').add({
       type:'image', text:caption, imgUrl:url,
       username:ME.key, display:ME.display, ts:ts()
     });
-    G('msgin').value=''; autoH(G('msgin'));
+    G('msgin').value = ''; autoH(G('msgin'));
     toast('✓ Imagen enviada');
-  }catch(e){
-    toast('Error al subir imagen: '+e.message,true);
+  } catch(e) {
+    toast('Error al subir imagen: ' + e.message, true);
   }
 }
 
 async function sendProd(){
-  const name=G('pname').value.trim();
-  const desc=G('pdesc').value.trim();
-  const price=G('pprice').value.trim();
+  const name  = G('pname').value.trim();
+  const desc  = G('pdesc').value.trim();
+  const price = G('pprice').value.trim();
   if(!name){ toast('Escribe el nombre del producto'); return; }
 
   closeM('mprod');
   toast('Enviando producto...');
 
-  let imgUrl='';
+  let imgUrl = '';
   if(pImg){
-    try{
-      const ref=stor.ref(`prod/${Date.now()}_${pImg.name.replace(/\s/g,'_')}`);
+    try {
+      const safeName = pImg.name.replace(/[^a-zA-Z0-9.]/g, '_');
+      const ref = stor.ref(`prod/${Date.now()}_${safeName}`);
       await ref.put(pImg);
-      imgUrl=await ref.getDownloadURL();
-    }catch(e){ toast('Imagen no se pudo subir, enviando sin ella'); }
+      imgUrl = await ref.getDownloadURL();
+    } catch(e) { toast('⚠️ Imagen no se pudo subir, enviando sin ella'); }
   }
 
-  await db.collection('messages').add({
-    type:'product', pName:name, pDesc:desc, pPrice:price, imgUrl,
-    username:ME.key, display:ME.display, ts:ts()
-  });
-
-  // Reset form
-  ['pname','pdesc','pprice'].forEach(id=>G(id).value='');
-  G('piprev').style.display='none';
-  G('pitxt').style.display='block';
-  pImg=null;
-  toast('✓ Producto enviado al chat');
+  try {
+    await db.collection('messages').add({
+      type:'product', pName:name, pDesc:desc, pPrice:price, imgUrl,
+      username:ME.key, display:ME.display, ts:ts()
+    });
+    ['pname','pdesc','pprice'].forEach(id => G(id).value = '');
+    G('piprev').style.display = 'none';
+    G('pitxt').style.display  = 'block';
+    pImg = null;
+    toast('✓ Producto enviado al chat');
+  } catch(e) {
+    toast('❌ Error al enviar: ' + e.message, true);
+  }
 }
 
-/* ══ PRODUCTOS ══ */
+/* ══════════════════════════════════════════
+   PRODUCTOS
+   BUG FIX: Usamos Date.now() numérico en vez
+   de serverTimestamp() para el campo 'ca' para
+   evitar problemas de ordenación en el cliente
+   antes de que Firebase confirme el timestamp.
+══════════════════════════════════════════ */
 function initProducts(){
   if(unProds) unProds();
   unProds = db.collection('products')
-    .orderBy('ca','desc')
-    .onSnapshot(snap=>{
-      allProds=[];
-      snap.forEach(doc=>allProds.push({id:doc.id,...doc.data()}));
+    .orderBy('ca', 'desc')
+    .onSnapshot(snap => {
+      allProds = [];
+      snap.forEach(doc => allProds.push({ id: doc.id, ...doc.data() }));
       renderProds(allProds);
-    }, err=>toast('Error catálogo: '+err.message,true));
+    }, err => toast('Error catálogo: ' + err.message, true));
 }
 
 function filterP(){
-  const q=G('psrch').value.toLowerCase().trim();
-  renderProds(q ? allProds.filter(p=>(p.name||'').toLowerCase().includes(q)) : allProds);
+  const q = G('psrch').value.toLowerCase().trim();
+  renderProds(q ? allProds.filter(p => (p.name||'').toLowerCase().includes(q)) : allProds);
 }
 
 function renderProds(list){
-  const el=G('plist');
+  const el = G('plist');
   if(!list.length){
-    el.innerHTML='<div class="empty-state"><div class="empty-ico">📦</div><span>Sin productos aún</span></div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-ico">📦</div><span>Sin productos aún</span></div>';
     return;
   }
-  el.innerHTML='';
-  const isAdmin = ME && ME.role==='Administrador';
-  list.forEach(p=>{
-    const d=document.createElement('div');
-    d.className='pitem';
-    d.innerHTML=`
-      ${p.img ? `<img src="${esc(p.img)}" alt="" onclick="openImgView('${esc(p.img)}')" style="cursor:zoom-in">` : '<div class="pitem-noimg">📦</div>'}
+  el.innerHTML = '';
+  const isAdmin = ME && ME.role === 'Administrador';
+  list.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'pitem';
+    d.innerHTML = `
+      ${p.img
+        ? `<img src="${esc(p.img)}" alt="" onclick="openImgView('${esc(p.img)}')">`
+        : '<div class="pitem-noimg">📦</div>'}
       <div class="pitem-body">
         <div class="pitem-name">${esc(p.name||'')}</div>
-        ${p.desc?`<div class="pitem-desc">${esc(p.desc)}</div>`:''}
+        ${p.desc ? `<div class="pitem-desc">${esc(p.desc)}</div>` : ''}
         <div class="pitem-foot">
           <div class="pitem-price">${esc(p.price||'')}</div>
           <div class="pitem-btns">
             <button class="bshr" onclick="shareP('${p.id}')">💬 Chat</button>
-            <button class="bshr" onclick="waP('${p.id}')">📲</button>
-            ${isAdmin?`<button class="bdel" onclick="delP('${p.id}')">🗑</button>`:''}
+            <button class="bshr" onclick="waP('${p.id}')">📲 WA</button>
+            ${isAdmin ? `<button class="bdel" onclick="delP('${p.id}')">🗑</button>` : ''}
           </div>
         </div>
       </div>`;
@@ -882,153 +928,211 @@ function renderProds(list){
 }
 
 async function addCat(){
-  const name=G('cname').value.trim();
-  const desc=G('cdesc').value.trim();
-  const price=G('cprice').value.trim();
+  const name  = G('cname').value.trim();
+  const desc  = G('cdesc').value.trim();
+  const price = G('cprice').value.trim();
   if(!name){ toast('Escribe el nombre del producto'); return; }
 
   closeM('mcat');
   toast('Guardando producto...');
 
-  let img='';
+  let img = '';
   if(cImg){
-    try{
-      const ref=stor.ref(`catalog/${Date.now()}_${cImg.name.replace(/\s/g,'_')}`);
+    try {
+      const safeName = cImg.name.replace(/[^a-zA-Z0-9.]/g, '_');
+      const ref = stor.ref(`catalog/${Date.now()}_${safeName}`);
       await ref.put(cImg);
-      img=await ref.getDownloadURL();
-    }catch(e){}
+      img = await ref.getDownloadURL();
+    } catch(e) { toast('⚠️ Imagen no se pudo subir'); }
   }
 
-  await db.collection('products').add({name,desc,price,img,by:ME.key,ca:ts()});
-  ['cname','cdesc','cprice'].forEach(id=>G(id).value='');
-  G('ciprev').style.display='none';
-  G('citxt').style.display='block';
-  cImg=null;
-  toast('✓ Producto agregado al catálogo');
+  try {
+    await db.collection('products').add({
+      name, desc, price, img, by: ME.key,
+      ca: Date.now() // número para ordenación segura en el cliente
+    });
+    ['cname','cdesc','cprice'].forEach(id => G(id).value = '');
+    G('ciprev').style.display = 'none';
+    G('citxt').style.display  = 'block';
+    cImg = null;
+    toast('✓ Producto agregado al catálogo');
+  } catch(e) {
+    toast('❌ Error al guardar: ' + e.message, true);
+  }
 }
 
 async function shareP(id){
-  const p=allProds.find(x=>x.id===id);
+  const p = allProds.find(x => x.id === id);
   if(!p) return;
-  await db.collection('messages').add({
-    type:'product', pName:p.name, pDesc:p.desc||'', pPrice:p.price||'', imgUrl:p.img||'',
-    username:ME.key, display:ME.display, ts:ts()
-  });
-  toast('✓ '+p.name+' compartido en el chat');
-  showTab('chat');
+  try {
+    await db.collection('messages').add({
+      type:'product', pName:p.name, pDesc:p.desc||'', pPrice:p.price||'', imgUrl:p.img||'',
+      username:ME.key, display:ME.display, ts:ts()
+    });
+    toast('✓ ' + p.name + ' compartido en el chat');
+    showTab('chat');
+  } catch(e) {
+    toast('❌ Error al compartir: ' + e.message, true);
+  }
 }
 
 function waP(id){
-  const p=allProds.find(x=>x.id===id); if(!p) return;
-  const txt=`*${p.name}*\n${p.desc||''}\nPrecio: ${p.price||''}\n\n🛍️ Kindo Mall`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`,'_blank');
+  const p = allProds.find(x => x.id === id);
+  if(!p) return;
+  const txt = buildWaMsg(p.name, p.desc, p.price);
+  window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
 }
 
 async function delP(id){
   if(!confirm('¿Eliminar este producto del catálogo?')) return;
-  await db.collection('products').doc(id).delete();
-  toast('Producto eliminado');
+  try {
+    await db.collection('products').doc(id).delete();
+    toast('✓ Producto eliminado');
+  } catch(e) {
+    toast('❌ Error al eliminar: ' + e.message, true);
+  }
 }
 
-/* ══ PRESENCIA ══ */
+/* ══════════════════════════════════════════
+   PRESENCIA
+   BUG FIX: Antes solo mostraba usuarios con
+   documentos en Firestore (solo quienes ya
+   habían iniciado sesión). Ahora muestra TODOS
+   los usuarios del objeto USERS y mezcla el
+   estado online desde Firestore.
+══════════════════════════════════════════ */
 function initPresence(){
   if(unPres) unPres();
-  unPres = db.collection('presence').onSnapshot(snap=>{
-    const el=G('elist');
-    el.innerHTML='';
-    let online=0;
+  unPres = db.collection('presence').onSnapshot(snap => {
+    // Construir mapa de presencia desde Firestore
+    const presMap = {};
+    snap.forEach(doc => presMap[doc.id] = doc.data());
 
-    snap.forEach(doc=>{
-      const p=doc.data();
-      if(p.online) online++;
-      const uc=USERS[doc.id]||{color:'#555'};
+    const el = G('elist');
+    el.innerHTML = '';
+    let online = 0;
 
-      const d=document.createElement('div');
-      d.className='eitem';
-      d.innerHTML=`
-        <div class="dot ${p.online?'on':'off'}"></div>
-        <div class="ava ava-sm" style="background:${uc.color};color:#fff">
-          ${(p.display||doc.id||'?')[0].toUpperCase()}
+    // Mostrar TODOS los usuarios definidos en USERS
+    Object.entries(USERS).forEach(([key, ud]) => {
+      const p = presMap[key];
+      const isOnline = !!(p && p.online === true);
+      if(isOnline) online++;
+
+      const d = document.createElement('div');
+      d.className = 'eitem';
+      d.innerHTML = `
+        <div class="dot ${isOnline ? 'on' : 'off'}"></div>
+        <div class="ava ava-sm" style="background:${ud.color};color:#fff">
+          ${ud.display[0].toUpperCase()}
         </div>
         <div class="einfo">
-          <div class="en" style="color:${p.online?'var(--w2)':'var(--w4)'}">${esc(p.display||doc.id)}</div>
-          <div class="er">${esc(p.role||'')}</div>
+          <div class="en" style="color:${isOnline ? 'var(--w2)' : 'var(--w4)'}">
+            ${esc(ud.display)}
+          </div>
+          <div class="er">${esc(ud.role)}</div>
         </div>`;
       el.appendChild(d);
     });
 
-    const badge=online+' en línea';
-    G('obadge').textContent=badge;
-    const b2=G('obadge2'); if(b2) b2.textContent=badge;
-  }, err=>console.warn('Presencia error:',err));
+    const badge = online + ' en línea';
+    G('obadge').textContent = badge;
+    const b2 = G('obadge2');
+    if(b2) b2.textContent = badge;
+  }, err => console.warn('Presencia error:', err));
 }
 
 /* ══ ARCHIVOS ══ */
 G('finp').addEventListener('change', function(){
-  const f=this.files[0]; if(!f) return;
-  selImg=f;
-  const r=new FileReader();
-  r.onload=ev=>{
-    G('ithumb').src=ev.target.result;
-    G('ipname').textContent=f.name;
+  const f = this.files[0]; if(!f) return;
+  selImg = f;
+  const r = new FileReader();
+  r.onload = ev => {
+    G('ithumb').src = ev.target.result;
+    G('ipname').textContent = f.name;
     G('ipbar').classList.remove('H');
   };
   r.readAsDataURL(f);
-  this.value='';
+  this.value = '';
 });
 
 G('piinp').addEventListener('change', function(){
-  const f=this.files[0]; if(!f) return;
-  pImg=f;
-  const r=new FileReader();
-  r.onload=ev=>{
-    G('piprev').src=ev.target.result;
-    G('piprev').style.display='block';
-    G('pitxt').style.display='none';
+  const f = this.files[0]; if(!f) return;
+  pImg = f;
+  const r = new FileReader();
+  r.onload = ev => {
+    G('piprev').src = ev.target.result;
+    G('piprev').style.display = 'block';
+    G('pitxt').style.display  = 'none';
   };
   r.readAsDataURL(f);
-  this.value='';
+  this.value = '';
 });
 
 G('ciinp').addEventListener('change', function(){
-  const f=this.files[0]; if(!f) return;
-  cImg=f;
-  const r=new FileReader();
-  r.onload=ev=>{
-    G('ciprev').src=ev.target.result;
-    G('ciprev').style.display='block';
-    G('citxt').style.display='none';
+  const f = this.files[0]; if(!f) return;
+  cImg = f;
+  const r = new FileReader();
+  r.onload = ev => {
+    G('ciprev').src = ev.target.result;
+    G('ciprev').style.display = 'block';
+    G('citxt').style.display  = 'none';
   };
   r.readAsDataURL(f);
-  this.value='';
+  this.value = '';
 });
 
 function clearImg(){
-  selImg=null;
+  selImg = null;
   G('ipbar').classList.add('H');
-  G('ithumb').src='';
+  G('ithumb').src = '';
 }
 
-/* ══ WHATSAPP ══ */
+/* ══ WHATSAPP (texto del chat) ══ */
 function waText(){
-  const txt=G('msgin').value.trim();
+  const txt = G('msgin').value.trim();
   if(!txt){ toast('Escribe un mensaje primero'); return; }
-  window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ *Kindo Mall*\n\n'+txt)}`,'_blank');
+  const waMsg = `🛍️ *KINDO MALL*\n\n${txt}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(waMsg)}`, '_blank');
 }
 
-/* ══ COPIAR ══ */
+/* ══════════════════════════════════════════
+   COPIAR AL PORTAPAPELES
+   BUG FIX: Antes fallaba silenciosamente en
+   navegadores sin API clipboard. Ahora tiene
+   un fallback con execCommand para compatibilidad.
+══════════════════════════════════════════ */
 function copyTxt(t){
-  navigator.clipboard.writeText(t)
-    .then(()=>toast('✓ Copiado al portapapeles'))
-    .catch(()=>{ toast('No se pudo copiar automáticamente'); });
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t)
+      .then(() => toast('✓ Copiado al portapapeles'))
+      .catch(() => fallbackCopy(t));
+  } else {
+    fallbackCopy(t);
+  }
 }
 
-/* ══ Cerrar paneles móvil al hacer tap en el chat ══ */
-G('cmsgs').addEventListener('click', ()=>{
-  if(window.innerWidth<=768){
+function fallbackCopy(t){
+  const ta = document.createElement('textarea');
+  ta.value = t;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;pointer-events:none;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    toast('✓ Copiado al portapapeles');
+  } catch(e) {
+    toast('No se pudo copiar automáticamente', true);
+  }
+  document.body.removeChild(ta);
+}
+
+/* ══ Cerrar paneles móvil al tocar el chat ══ */
+G('cmsgs').addEventListener('click', () => {
+  if(window.innerWidth <= 768){
     G('sidebar').classList.remove('open');
     G('ppanel').classList.remove('open');
-    document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('act',i===1));
+    document.querySelectorAll('.mtab').forEach((t,i) => t.classList.toggle('act', i===1));
   }
 });
 </script>
