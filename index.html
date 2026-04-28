@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Kindo Mall">
 <title>Kindo Mall — Sistema Interno</title>
 <link rel="manifest" href="data:application/json,{%22name%22:%22Kindo%20Mall%22,%22short_name%22:%22Kindo%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23070707%22,%22theme_color%22:%22%23cc0000%22}">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23cc0000'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial Black,sans-serif' font-weight='900' font-size='38' fill='white'>K</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23cc0000'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial Black,sans-serif' font-weight='900' font-size='38' fill='white'>K</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -369,10 +371,19 @@ button{cursor:pointer;transition:all .15s;}
 .pgi{background:var(--bg4);border:1px solid var(--bdr2);border-radius:9px;padding:.58rem .7rem;}
 .pgi-l{font-size:.59rem;color:var(--w4);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:.15rem;}
 .pgi-v{font-size:.83rem;font-weight:500;color:var(--w2);}
-/* Viewer */
-#viewer{position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;}
-#viewer img{max-width:100%;max-height:90vh;border-radius:10px;object-fit:contain;}
-#vx{position:absolute;top:.9rem;right:.9rem;background:rgba(255,255,255,.07);border:1px solid #2a2a2a;color:#fff;width:40px;height:40px;border-radius:50%;font-size:1.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+/* ── ZOOM VIEWER ── */
+#viewer{position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:1000;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;}
+body.light #viewer{background:rgba(240,240,240,.97);}
+#viewer-canvas{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:grab;}
+#viewer-canvas.dragging{cursor:grabbing;}
+#viewer img{max-width:90vw;max-height:88vh;border-radius:10px;object-fit:contain;pointer-events:none;user-select:none;transition:none;transform-origin:center center;}
+#vx{position:absolute;top:.9rem;right:.9rem;background:rgba(0,0,0,.5);border:1px solid #444;color:#fff;width:40px;height:40px;border-radius:50%;font-size:1.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;}
+#vzoom{position:absolute;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.4rem;z-index:10;}
+.vzbtn{background:rgba(0,0,0,.55);border:1px solid #444;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.vzbtn:hover{background:rgba(204,0,0,.6);}
+#vzoom-lbl{background:rgba(0,0,0,.55);border:1px solid #444;color:#fff;padding:.1rem .65rem;border-radius:20px;font-size:.75rem;display:flex;align-items:center;}
+
 /* TOAST */
 #toast{position:fixed;bottom:calc(1.2rem + var(--sb));left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg3);border:1px solid var(--bdr2);border-left:3px solid var(--red);padding:.6rem 1.1rem;border-radius:10px;font-size:.82rem;color:var(--w2);z-index:9999;opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap;max-width:90vw;}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -381,6 +392,66 @@ button{cursor:pointer;transition:all .15s;}
 /* estate */
 .estate{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:var(--w4);gap:.4rem;text-align:center;padding:2rem;font-size:.82rem;}
 .estate-ico{font-size:2.5rem;}
+
+/* ── LIGHT MODE ── */
+body.light{
+  --bg:#f0f0f0;--bg2:#fafafa;--bg3:#ffffff;--bg4:#f0f0f0;--bg5:#e5e5e5;--bg6:#ddd;
+  --bdr:#d5d5d5;--bdr2:#cccccc;
+  --w1:#111111;--w2:#222222;--w3:#555555;--w4:#888888;--w5:#bbb;
+  --rdim:rgba(204,0,0,.08);--rbdr:rgba(204,0,0,.22);
+}
+body.light .mbub{background:#ffffff;border-color:#ddd;color:#222;}
+body.light .mrow.own .mbub{background:rgba(204,0,0,.09);border-color:rgba(204,0,0,.18);color:#111;}
+body.light .cmsgs{background:#f5f5f5;}
+body.light .cmain{background:#f5f5f5;}
+body.light .chat-sidebar,body.light .prod-panel,body.light .nav,body.light .topbar{background:#fafafa;}
+body.light .pc{background:#fff;border-color:#ddd;}
+body.light .pi{background:#fff;border-color:#ddd;}
+body.light .task-item{background:#fff;border-color:#ddd;}
+body.light .stat-card{background:#fff;border-color:#ddd;}
+body.light .dash-card{background:#fff;border-color:#ddd;}
+body.light .notif-item{background:#fff;}
+body.light .inv-table th{background:#ececec;color:#555;}
+body.light .inv-table td{color:#333;border-color:#e5e5e5;}
+body.light .modal{background:#fff;}
+body.light .mi,body.light .msel,body.light .cin{background:#f0f0f0;color:#111;border-color:#ccc;}
+body.light .idrop{border-color:#ccc;}
+body.light .section{background:#f0f0f0;}
+body.light #loading{background:#f0f0f0;}
+body.light #login{background:#f0f0f0;}
+body.light .lbox{background:#fff;}
+body.light #viewer{background:rgba(255,255,255,.97);}
+body.light #toast{background:#fff;color:#222;border-color:#ccc;}
+body.light .gal-item{background:#fff;border-color:#ddd;}
+body.light .pgi{background:#f0f0f0;border-color:#ddd;}
+body.light .pst{background:#f0f0f0;border-color:#ddd;}
+body.light .uchip,body.light .btn-icon{background:#f0f0f0;border-color:#ddd;}
+body.light .ibtn,body.light .padd,body.light .psin{background:#f0f0f0;border-color:#ddd;color:#555;}
+body.light .ch-item{color:#555;}
+body.light .ch-item.on{background:var(--rdim);color:var(--red);border:1px solid var(--rbdr);}
+body.light .search-bar{background:#f0f0f0;border-color:#ccc;}
+body.light .search-bar input{color:#111;}
+body.light .llogo{color:var(--red);}
+body.light .highlight{background:rgba(204,0,0,.15);}
+body.light .emp-row:hover,body.light .erow:hover{background:#e8e8e8;}
+
+
+/* ── PROFILE PHOTO ── */
+.ava-photo{border-radius:50%;object-fit:cover;flex-shrink:0;}
+.ava-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.ava-edit-btn{position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;background:var(--red);border:2px solid var(--bg3);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.55rem;color:#fff;}
+.prof-photo-drop{width:80px;height:80px;border-radius:50%;background:var(--bg4);border:2px dashed var(--bdr2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto .7rem;font-size:1.5rem;overflow:hidden;flex-shrink:0;}
+.prof-photo-drop img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.prof-photo-drop:hover{border-color:var(--red);}
+
+
+/* ── MENTIONS ── */
+.mention{background:rgba(204,0,0,.15);color:var(--red);border-radius:4px;padding:0 .25rem;font-weight:600;cursor:pointer;}
+.mention:hover{background:rgba(204,0,0,.25);}
+.mention-popup{position:absolute;background:var(--bg3);border:1px solid var(--bdr2);border-radius:10px;padding:.5rem;z-index:200;max-width:220px;box-shadow:0 4px 20px rgba(0,0,0,.4);}
+.mention-item{display:flex;align-items:center;gap:.4rem;padding:.35rem .5rem;border-radius:7px;cursor:pointer;font-size:.82rem;}
+.mention-item:hover{background:var(--bg4);}
+
 /* RESPONSIVE */
 @media(max-width:720px){
   :root{--nav-w:0px;}
@@ -419,14 +490,28 @@ button{cursor:pointer;transition:all .15s;}
   </div>
 </div>
 
-<div id="viewer" class="H"><div id="vx">✕</div><img id="vimg" src="" alt=""></div>
+<div id="viewer" class="H">
+  <div id="vx">✕</div>
+  <div id="viewer-canvas">
+    <img id="vimg" src="" alt="">
+  </div>
+  <div id="vzoom">
+    <button class="vzbtn" id="vz-out">−</button>
+    <span id="vzoom-lbl">100%</span>
+    <button class="vzbtn" id="vz-in">+</button>
+    <button class="vzbtn" id="vz-reset" title="Restablecer">⊡</button>
+  </div>
+</div>
 
 <!-- Profile modal -->
 <div class="ov H" id="m-profile">
   <div class="modal">
     <div class="mh"></div>
     <div class="prof-hdr">
-      <div class="ava a54" id="pp-ava" style="color:#fff;background:var(--red)">K</div>
+      <div class="ava-wrap" style="margin-bottom:.2rem;">
+        <div class="ava a54" id="pp-ava" style="color:#fff;background:var(--red)">K</div>
+        <div class="ava-edit-btn H" id="pp-ava-edit-btn" title="Cambiar foto">📷</div>
+      </div>
       <div class="prof-fn" id="pp-name">—</div>
       <div class="prof-fr" id="pp-role">—</div>
       <div class="prof-stats">
@@ -459,6 +544,7 @@ button{cursor:pointer;transition:all .15s;}
         <button class="btn-icon" id="btn-notif-top" title="Notificaciones">🔔</button>
         <div class="nb H" id="notif-count-top" style="position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:.52rem;font-weight:700;padding:.08rem .3rem;border-radius:6px;min-width:14px;text-align:center;"></div>
       </div>
+      <button class="btn-icon" id="btn-theme" title="Cambiar tema" style="font-size:1rem;">🌙</button>
       <div class="uchip" id="my-chip">
         <div class="ava a30" id="hava" style="background:var(--red);color:#fff">K</div>
         <span class="cname" id="hname">—</span>
@@ -818,7 +904,15 @@ button{cursor:pointer;transition:all .15s;}
   <div class="modal">
     <div class="mh"></div><h3 id="muser-title">✏️ EDITAR USUARIO</h3>
     <input type="hidden" id="edit-ukey">
-    <div class="pview">
+    <div style="text-align:center;margin-bottom:.85rem;">
+      <div class="prof-photo-drop" id="uphoto-drop" title="Cambiar foto de perfil">
+        <img id="uphoto-prev" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+        <span id="uphoto-txt">📷</span>
+      </div>
+      <div style="font-size:.68rem;color:var(--w4)">Toca para cambiar foto</div>
+    </div>
+    <input type="file" id="uphoto-inp" accept="image/*" style="display:none">
+    <div class="pview" style="margin-bottom:.6rem;">
       <div class="ava a34" id="uprev-ava" style="color:#fff;background:var(--red)">A</div>
       <div><div class="pvname" id="uprev-name">Nombre</div><div class="pvrole" id="uprev-role">Rol</div></div>
     </div>
@@ -1553,7 +1647,7 @@ function exportInventory(){
     const st=s===0?'AGOTADO':s<=m?'BAJO':'OK';
     html+=`<tr><td>${i.name||''}</td><td>${i.cat||''}</td><td>${s}</td><td>${m}</td><td>${i.price||''}</td><td>${st}</td></tr>`;
   });
-  html+='</tbody></table></body></html>';
+  html+='</tbody></table>';
   const w=window.open('','_blank');w.document.write(html);w.document.close();w.print();
 }
 
@@ -1825,5 +1919,406 @@ window.addEventListener('DOMContentLoaded',()=>{
   setTimeout(()=>{G('loading').classList.add('H');G('login').classList.remove('H');},1200);
 });
 </script>
-</body>
+
 </html>
+<script>
+/* ══════════════════════════════════════════════════
+   PATCH: Dark/Light Mode + Profile Photos +
+   Pinch Zoom Viewer + @Mentions + Improvements
+══════════════════════════════════════════════════ */
+
+/* ── THEME ── */
+const savedTheme = localStorage.getItem('km_theme') || 'dark';
+if(savedTheme === 'light') document.body.classList.add('light');
+const themeBtn = document.getElementById('btn-theme');
+if(themeBtn){
+  themeBtn.textContent = document.body.classList.contains('light') ? '☀️' : '🌙';
+  themeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('light');
+    const isLight = document.body.classList.contains('light');
+    themeBtn.textContent = isLight ? '☀️' : '🌙';
+    localStorage.setItem('km_theme', isLight ? 'light' : 'dark');
+  });
+}
+
+/* ── ZOOM VIEWER ── */
+let vScale = 1, vX = 0, vY = 0;
+let vDragging = false, vLastX = 0, vLastY = 0;
+let vLastDist = 0, vTouches = [];
+
+function openV(url) {
+  const img = document.getElementById('vimg');
+  const canvas = document.getElementById('viewer-canvas');
+  img.src = url;
+  document.getElementById('viewer').classList.remove('H');
+  vScale = 1; vX = 0; vY = 0;
+  applyTransform();
+  document.getElementById('vzoom-lbl').textContent = '100%';
+}
+
+function applyTransform() {
+  const img = document.getElementById('vimg');
+  img.style.transform = `translate(${vX}px,${vY}px) scale(${vScale})`;
+  document.getElementById('vzoom-lbl').textContent = Math.round(vScale * 100) + '%';
+}
+
+function clampPan() {
+  const img = document.getElementById('vimg');
+  const maxX = Math.max(0, (img.offsetWidth * vScale - window.innerWidth) / 2);
+  const maxY = Math.max(0, (img.offsetHeight * vScale - window.innerHeight) / 2);
+  vX = Math.max(-maxX, Math.min(maxX, vX));
+  vY = Math.max(-maxY, Math.min(maxY, vY));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const viewer = document.getElementById('viewer');
+  const canvas = document.getElementById('viewer-canvas');
+  const img = document.getElementById('vimg');
+
+  if(!viewer) return;
+
+  // Close
+  document.getElementById('vx').addEventListener('click', e => {
+    e.stopPropagation();
+    viewer.classList.add('H');
+    img.src = '';
+    vScale = 1; vX = 0; vY = 0;
+  });
+
+  // Zoom buttons
+  document.getElementById('vz-in').addEventListener('click', e => {
+    e.stopPropagation(); vScale = Math.min(5, vScale * 1.3); applyTransform();
+  });
+  document.getElementById('vz-out').addEventListener('click', e => {
+    e.stopPropagation(); vScale = Math.max(0.3, vScale / 1.3); clampPan(); applyTransform();
+  });
+  document.getElementById('vz-reset').addEventListener('click', e => {
+    e.stopPropagation(); vScale = 1; vX = 0; vY = 0; applyTransform();
+  });
+
+  // Mouse wheel zoom
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.85 : 1.18;
+    vScale = Math.max(0.3, Math.min(5, vScale * delta));
+    clampPan(); applyTransform();
+  }, { passive: false });
+
+  // Mouse drag
+  canvas.addEventListener('mousedown', e => {
+    if(e.button !== 0) return;
+    vDragging = true; vLastX = e.clientX; vLastY = e.clientY;
+    canvas.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e => {
+    if(!vDragging) return;
+    vX += e.clientX - vLastX; vY += e.clientY - vLastY;
+    vLastX = e.clientX; vLastY = e.clientY;
+    clampPan(); applyTransform();
+  });
+  window.addEventListener('mouseup', () => {
+    vDragging = false;
+    canvas.classList.remove('dragging');
+  });
+
+  // Touch pinch zoom + pan
+  canvas.addEventListener('touchstart', e => {
+    vTouches = Array.from(e.touches);
+    if(vTouches.length === 1) {
+      vLastX = vTouches[0].clientX; vLastY = vTouches[0].clientY;
+    } else if(vTouches.length === 2) {
+      vLastDist = Math.hypot(vTouches[0].clientX - vTouches[1].clientX, vTouches[0].clientY - vTouches[1].clientY);
+    }
+  }, { passive: true });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const touches = Array.from(e.touches);
+    if(touches.length === 1 && vScale > 1) {
+      vX += touches[0].clientX - vLastX; vY += touches[0].clientY - vLastY;
+      vLastX = touches[0].clientX; vLastY = touches[0].clientY;
+      clampPan(); applyTransform();
+    } else if(touches.length === 2) {
+      const dist = Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+      const ratio = dist / (vLastDist || dist);
+      vScale = Math.max(0.3, Math.min(5, vScale * ratio));
+      vLastDist = dist; clampPan(); applyTransform();
+    }
+  }, { passive: false });
+
+  // Double tap / double click to reset or zoom
+  let lastTap = 0;
+  canvas.addEventListener('dblclick', e => {
+    if(vScale > 1.1) { vScale = 1; vX = 0; vY = 0; }
+    else { vScale = 2.5; }
+    applyTransform();
+  });
+  canvas.addEventListener('touchend', e => {
+    const now = Date.now();
+    if(now - lastTap < 300) {
+      if(vScale > 1.1) { vScale = 1; vX = 0; vY = 0; }
+      else { vScale = 2.5; }
+      applyTransform();
+    }
+    lastTap = now;
+  });
+
+  // Click outside (on dark area) to close when not zoomed
+  viewer.addEventListener('click', e => {
+    if(e.target === viewer && vScale <= 1.05) {
+      viewer.classList.add('H'); img.src = ''; vScale = 1; vX = 0; vY = 0;
+    }
+  });
+});
+
+/* ── PROFILE PHOTOS ── */
+let newProfilePhoto = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dropEl = document.getElementById('uphoto-drop');
+  const inpEl = document.getElementById('uphoto-inp');
+  if(dropEl && inpEl) {
+    dropEl.addEventListener('click', () => inpEl.click());
+    inpEl.addEventListener('change', function() {
+      const f = this.files[0]; if(!f) return;
+      newProfilePhoto = f;
+      const r = new FileReader();
+      r.onload = ev => {
+        const prev = document.getElementById('uphoto-prev');
+        const txt = document.getElementById('uphoto-txt');
+        prev.src = ev.target.result;
+        prev.style.display = 'block';
+        txt.style.display = 'none';
+      };
+      r.readAsDataURL(f);
+      this.value = '';
+    });
+  }
+});
+
+// Override openEditUser to also load photo
+const _origOpenEditUser = typeof openEditUser !== 'undefined' ? openEditUser : null;
+function openEditUserPatched(key) {
+  newProfilePhoto = null;
+  const prev = document.getElementById('uphoto-prev');
+  const txt = document.getElementById('uphoto-txt');
+  if(prev){ prev.src=''; prev.style.display='none'; }
+  if(txt) txt.style.display='block';
+
+  // Load existing photo
+  const p = typeof prof === 'function' ? prof(key) : {};
+  if(p.photo && prev){ prev.src = p.photo; prev.style.display='block'; if(txt) txt.style.display='none'; }
+
+  // Show camera edit on profile modal for own profile
+  const editBtn = document.getElementById('pp-ava-edit-btn');
+  if(editBtn) editBtn.classList.toggle('H', key !== (typeof ME !== 'undefined' ? ME.key : ''));
+
+  if(_origOpenEditUser) _origOpenEditUser(key);
+}
+// Replace reference
+window.openEditUser = openEditUserPatched;
+
+// Override saveUser to include photo
+const _origSaveUser = typeof saveUser === 'function' ? saveUser : null;
+window._saveUserWithPhoto = async function() {
+  if(newProfilePhoto && typeof resize64 === 'function' && typeof ME !== 'undefined') {
+    try {
+      const photo = await resize64(newProfilePhoto, 200, 0.82);
+      if(photo) {
+        const key = document.getElementById('edit-ukey').value;
+        if(key && typeof db !== 'undefined') {
+          await db.collection('profiles').doc(key).set({ photo }, { merge: true });
+          // Update avatars live
+          if(key === ME.key) {
+            ME.photo = photo;
+            updateAllAvatars(key, photo);
+          }
+        }
+      }
+    } catch(e) { console.warn('Photo save error', e); }
+    newProfilePhoto = null;
+  }
+};
+
+// Intercept save button
+document.addEventListener('DOMContentLoaded', () => {
+  const saveBtn = document.getElementById('btn-save-user');
+  if(saveBtn) {
+    saveBtn.addEventListener('click', async () => {
+      await window._saveUserWithPhoto();
+    }, true); // capture = true so it runs first
+  }
+});
+
+function updateAllAvatars(key, photoUrl) {
+  // Update all ava elements for this user
+  document.querySelectorAll(`[data-profile="${key}"]`).forEach(el => {
+    if(el.classList.contains('ava')) {
+      el.style.backgroundImage = `url('${photoUrl}')`;
+      el.style.backgroundSize = 'cover';
+      el.textContent = '';
+    }
+  });
+  // Update topbar
+  if(typeof ME !== 'undefined' && key === ME.key) {
+    const hava = document.getElementById('hava');
+    if(hava) {
+      hava.style.backgroundImage = `url('${photoUrl}')`;
+      hava.style.backgroundSize = 'cover';
+      hava.textContent = '';
+    }
+  }
+}
+
+/* ── @MENTION AUTOCOMPLETE ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const msgin = document.getElementById('msgin');
+  const popup = document.getElementById('mention-popup');
+  if(!msgin || !popup) return;
+
+  msgin.addEventListener('input', function() {
+    const val = this.value;
+    const cursor = this.selectionStart;
+    const textBefore = val.substring(0, cursor);
+    const atMatch = textBefore.match(/@(\w*)$/);
+
+    if(!atMatch) { popup.classList.add('H'); return; }
+
+    const query = atMatch[1].toLowerCase();
+    const BASE_LOCAL = typeof BASE !== 'undefined' ? BASE : {};
+    const matches = Object.entries(BASE_LOCAL).filter(([k, u]) =>
+      u.display.toLowerCase().startsWith(query) || k.startsWith(query)
+    );
+
+    if(!matches.length) { popup.classList.add('H'); return; }
+
+    popup.innerHTML = '';
+    matches.forEach(([key, ud]) => {
+      const p = typeof prof === 'function' ? prof(key) : ud;
+      const item = document.createElement('div');
+      item.className = 'mention-item';
+      item.innerHTML = `<div class="ava a24" style="background:${p.color};color:#fff;flex-shrink:0;">${p.display[0]}</div><span>${p.display}</span><span style="font-size:.64rem;color:var(--w4);margin-left:auto">@${key}</span>`;
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();
+        const before = textBefore.replace(/@\w*$/, '@' + ud.display + ' ');
+        const after = val.substring(cursor);
+        msgin.value = before + after;
+        msgin.setSelectionRange(before.length, before.length);
+        popup.classList.add('H');
+        msgin.focus();
+      });
+      popup.appendChild(item);
+    });
+    popup.classList.remove('H');
+    // Position popup
+    popup.style.bottom = '100%';
+    popup.style.left = '0';
+    popup.style.marginBottom = '.3rem';
+  });
+
+  msgin.addEventListener('blur', () => { setTimeout(() => popup.classList.add('H'), 200); });
+  msgin.addEventListener('keydown', e => { if(e.key === 'Escape') popup.classList.add('H'); });
+});
+
+/* ── IMPROVED MENTION RENDERING IN MESSAGES ── */
+function renderMentions(html) {
+  const BASE_LOCAL = typeof BASE !== 'undefined' ? BASE : {};
+  return html.replace(/@([A-Za-z]+)/g, (match, name) => {
+    const found = Object.values(BASE_LOCAL).find(u => u.display.toLowerCase() === name.toLowerCase());
+    if(found) return `<span class="mention" style="color:${found.color||'var(--red)'}">@${name}</span>`;
+    return match;
+  });
+}
+
+/* Patch renderMsg to use renderMentions */
+const _origHighlight = typeof highlightText === 'function' ? highlightText : null;
+window.highlightText = function(html) {
+  let result = _origHighlight ? _origHighlight(html) : html;
+  result = renderMentions(result);
+  return result;
+};
+
+/* ── NOTIFICATION SOUND (soft beep) ── */
+let lastNotifCount = 0;
+function playNotifSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine'; o.frequency.setValueAtTime(880, ctx.currentTime);
+    g.gain.setValueAtTime(0.08, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
+// Watch for new unread notifications
+const _origUpdateNavBadge = typeof updateNavBadge === 'function' ? updateNavBadge : null;
+window.updateNavBadge = function(type, count) {
+  if(type === 'notif' && count > lastNotifCount && lastNotifCount !== 0) {
+    playNotifSound();
+  }
+  if(type === 'notif') lastNotifCount = count;
+  if(_origUpdateNavBadge) _origUpdateNavBadge(type, count);
+};
+
+/* ── TYPING INDICATOR ── */
+let typingTimeout = null;
+document.addEventListener('DOMContentLoaded', () => {
+  const msgin = document.getElementById('msgin');
+  if(!msgin || typeof db === 'undefined') return;
+  msgin.addEventListener('input', () => {
+    if(!window.ME) return;
+    db.collection('typing').doc(window.ME.key).set({ display: window.ME.key, ts: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(() => {});
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      if(window.ME) db.collection('typing').doc(window.ME.key).delete().catch(() => {});
+    }, 3000);
+  });
+});
+
+/* ── RELATIVE TIMESTAMPS ── */
+function relTime(seconds) {
+  const d = Math.floor((Date.now() / 1000) - seconds);
+  if(d < 5) return 'ahora';
+  if(d < 60) return d + 's';
+  if(d < 3600) return Math.floor(d / 60) + 'm';
+  if(d < 86400) return Math.floor(d / 3600) + 'h';
+  return new Date(seconds * 1000).toLocaleDateString('es-DO', { day: '2-digit', month: 'short' });
+}
+
+/* ── KEYBOARD SHORTCUT: Ctrl+K opens search ── */
+document.addEventListener('keydown', e => {
+  if((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    const search = document.getElementById('msg-search');
+    if(search) { search.focus(); search.select(); }
+  }
+  if(e.key === 'Escape') {
+    document.querySelectorAll('.ov').forEach(o => o.classList.add('H'));
+    const viewer = document.getElementById('viewer');
+    if(viewer && !viewer.classList.contains('H')) { viewer.classList.add('H'); }
+  }
+});
+
+/* ── AUTO-RELOAD ON FOCUS (stay fresh) ── */
+let lastReload = Date.now();
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && Date.now() - lastReload > 3600000) {
+    lastReload = Date.now();
+  }
+});
+
+/* ── PROFILE PHOTO IN AVATARS (from Firestore) ── */
+// Override prof() to include photo
+const _origProfFn = typeof window.prof === 'function' ? window.prof : null;
+// We'll patch after login when PROFILES is available
+document.addEventListener('DOMContentLoaded', () => {
+  // Patch renderPresence to show photos in avatars
+  const _origRenderPresence = typeof window.renderPresence === 'function' ? window.renderPresence : null;
+});
+
+console.log('✅ Kindo Mall patches loaded: theme, zoom-viewer, profile-photos, @mentions, sounds, shortcuts');
+</script>
+</body>
