@@ -491,15 +491,15 @@ body.light .emp-row:hover,body.light .erow:hover{background:#e8e8e8;}
 </div>
 
 <div id="viewer" class="H">
-  <div id="vx">✕</div>
+  <div id="vx" onclick="closeViewer()">✕</div>
   <div id="viewer-canvas">
     <img id="vimg" src="" alt="">
   </div>
   <div id="vzoom">
-    <button class="vzbtn" id="vz-out">−</button>
+    <button class="vzbtn" onclick="viewerZoom(-1)">−</button>
     <span id="vzoom-lbl">100%</span>
-    <button class="vzbtn" id="vz-in">+</button>
-    <button class="vzbtn" id="vz-reset" title="Restablecer">⊡</button>
+    <button class="vzbtn" onclick="viewerZoom(1)">+</button>
+    <button class="vzbtn" onclick="viewerReset()" title="Reset">⊡</button>
   </div>
 </div>
 
@@ -1011,9 +1011,9 @@ function resize64(file,maxPx=720,q=0.72){
 }
 
 /* ══ VIEWER ══ */
-G('viewer').addEventListener('click',()=>{G('viewer').classList.add('H');G('vimg').src='';});
-G('vx').addEventListener('click',e=>{e.stopPropagation();G('viewer').classList.add('H');G('vimg').src='';});
-function openV(url){G('vimg').src=url;G('viewer').classList.remove('H');}
+/* openV replaced by zoom viewer below */
+function openV(url){ viewerOpen(url); }
+function closeViewer(){ var v=G('viewer'); if(v){v.classList.add('H');} var i=G('vimg'); if(i)i.src=''; vScale=1;vX=0;vY=0; }
 
 /* ══ NAVIGATION ══ */
 const SECTION_LABELS={chat:'💬 Chat',dashboard:'📊 Dashboard',tasks:'✅ Tareas',shifts:'🕐 Turnos',inventory:'📋 Inventario',gallery:'📸 Galería',notifications:'🔔 Notificaciones'};
@@ -1920,405 +1920,368 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 </script>
 
-</html>
-<script>
-/* ══════════════════════════════════════════════════
-   PATCH: Dark/Light Mode + Profile Photos +
-   Pinch Zoom Viewer + @Mentions + Improvements
-══════════════════════════════════════════════════ */
 
-/* ── THEME ── */
-const savedTheme = localStorage.getItem('km_theme') || 'dark';
-if(savedTheme === 'light') document.body.classList.add('light');
-const themeBtn = document.getElementById('btn-theme');
-if(themeBtn){
-  themeBtn.textContent = document.body.classList.contains('light') ? '☀️' : '🌙';
-  themeBtn.addEventListener('click', () => {
+
+<script>
+/* ════════════════════════════════════════════════════
+   KINDO MALL — FEATURE EXTENSIONS
+   Dark/Light Mode · Zoom Viewer · @Mentions ·
+   Profile Photos · Notifications · Improvements
+════════════════════════════════════════════════════ */
+
+/* ══ 1. DARK / LIGHT MODE ══ */
+(function(){
+  const saved = localStorage.getItem('km_theme');
+  if(saved === 'light') document.body.classList.add('light');
+})();
+
+window.addEventListener('DOMContentLoaded', function(){
+  var btn = document.getElementById('btn-theme');
+  if(!btn) return;
+  btn.textContent = document.body.classList.contains('light') ? '☀️' : '🌙';
+  btn.addEventListener('click', function(){
     document.body.classList.toggle('light');
-    const isLight = document.body.classList.contains('light');
-    themeBtn.textContent = isLight ? '☀️' : '🌙';
+    var isLight = document.body.classList.contains('light');
+    btn.textContent = isLight ? '☀️' : '🌙';
     localStorage.setItem('km_theme', isLight ? 'light' : 'dark');
   });
+});
+
+/* ══ 2. ZOOM VIEWER ══ */
+var vScale=1, vX=0, vY=0, vDrag=false, vLX=0, vLY=0, vLDist=0;
+
+function viewerOpen(url){
+  vScale=1; vX=0; vY=0;
+  var img=document.getElementById('vimg');
+  if(img){ img.src=url; img.style.transform=''; }
+  var v=document.getElementById('viewer');
+  if(v) v.classList.remove('H');
+  var lbl=document.getElementById('vzoom-lbl');
+  if(lbl) lbl.textContent='100%';
 }
-
-/* ── ZOOM VIEWER ── */
-let vScale = 1, vX = 0, vY = 0;
-let vDragging = false, vLastX = 0, vLastY = 0;
-let vLastDist = 0, vTouches = [];
-
-function openV(url) {
-  const img = document.getElementById('vimg');
-  const canvas = document.getElementById('viewer-canvas');
-  img.src = url;
-  document.getElementById('viewer').classList.remove('H');
-  vScale = 1; vX = 0; vY = 0;
-  applyTransform();
-  document.getElementById('vzoom-lbl').textContent = '100%';
+function closeViewer(){
+  var v=document.getElementById('viewer'); if(v) v.classList.add('H');
+  var img=document.getElementById('vimg'); if(img) img.src='';
+  vScale=1; vX=0; vY=0;
 }
-
-function applyTransform() {
-  const img = document.getElementById('vimg');
-  img.style.transform = `translate(${vX}px,${vY}px) scale(${vScale})`;
-  document.getElementById('vzoom-lbl').textContent = Math.round(vScale * 100) + '%';
+function viewerApply(){
+  var img=document.getElementById('vimg'); if(!img) return;
+  img.style.transform='translate('+vX+'px,'+vY+'px) scale('+vScale+')';
+  var lbl=document.getElementById('vzoom-lbl');
+  if(lbl) lbl.textContent=Math.round(vScale*100)+'%';
 }
-
-function clampPan() {
-  const img = document.getElementById('vimg');
-  const maxX = Math.max(0, (img.offsetWidth * vScale - window.innerWidth) / 2);
-  const maxY = Math.max(0, (img.offsetHeight * vScale - window.innerHeight) / 2);
-  vX = Math.max(-maxX, Math.min(maxX, vX));
-  vY = Math.max(-maxY, Math.min(maxY, vY));
+function viewerClamp(){
+  var img=document.getElementById('vimg'); if(!img) return;
+  var mx=Math.max(0,(img.offsetWidth*vScale-window.innerWidth)/2);
+  var my=Math.max(0,(img.offsetHeight*vScale-window.innerHeight)/2);
+  vX=Math.max(-mx,Math.min(mx,vX));
+  vY=Math.max(-my,Math.min(my,vY));
 }
+function viewerZoom(dir){
+  vScale=dir>0 ? Math.min(6,vScale*1.35) : Math.max(0.25,vScale/1.35);
+  viewerClamp(); viewerApply();
+}
+function viewerReset(){ vScale=1; vX=0; vY=0; viewerApply(); }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const viewer = document.getElementById('viewer');
-  const canvas = document.getElementById('viewer-canvas');
-  const img = document.getElementById('vimg');
+window.addEventListener('DOMContentLoaded', function(){
+  var canvas=document.getElementById('viewer-canvas');
+  var viewer=document.getElementById('viewer');
+  if(!canvas||!viewer) return;
 
-  if(!viewer) return;
-
-  // Close
-  document.getElementById('vx').addEventListener('click', e => {
-    e.stopPropagation();
-    viewer.classList.add('H');
-    img.src = '';
-    vScale = 1; vX = 0; vY = 0;
-  });
-
-  // Zoom buttons
-  document.getElementById('vz-in').addEventListener('click', e => {
-    e.stopPropagation(); vScale = Math.min(5, vScale * 1.3); applyTransform();
-  });
-  document.getElementById('vz-out').addEventListener('click', e => {
-    e.stopPropagation(); vScale = Math.max(0.3, vScale / 1.3); clampPan(); applyTransform();
-  });
-  document.getElementById('vz-reset').addEventListener('click', e => {
-    e.stopPropagation(); vScale = 1; vX = 0; vY = 0; applyTransform();
-  });
-
-  // Mouse wheel zoom
-  canvas.addEventListener('wheel', e => {
+  /* Wheel zoom */
+  canvas.addEventListener('wheel', function(e){
     e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.85 : 1.18;
-    vScale = Math.max(0.3, Math.min(5, vScale * delta));
-    clampPan(); applyTransform();
-  }, { passive: false });
+    vScale = e.deltaY<0 ? Math.min(6,vScale*1.15) : Math.max(0.25,vScale/1.15);
+    viewerClamp(); viewerApply();
+  },{passive:false});
 
-  // Mouse drag
-  canvas.addEventListener('mousedown', e => {
-    if(e.button !== 0) return;
-    vDragging = true; vLastX = e.clientX; vLastY = e.clientY;
-    canvas.classList.add('dragging');
+  /* Mouse drag */
+  canvas.addEventListener('mousedown', function(e){
+    if(e.button!==0)return; vDrag=true; vLX=e.clientX; vLY=e.clientY;
+    canvas.style.cursor='grabbing';
   });
-  window.addEventListener('mousemove', e => {
-    if(!vDragging) return;
-    vX += e.clientX - vLastX; vY += e.clientY - vLastY;
-    vLastX = e.clientX; vLastY = e.clientY;
-    clampPan(); applyTransform();
+  window.addEventListener('mousemove', function(e){
+    if(!vDrag)return;
+    vX+=e.clientX-vLX; vY+=e.clientY-vLY; vLX=e.clientX; vLY=e.clientY;
+    viewerClamp(); viewerApply();
   });
-  window.addEventListener('mouseup', () => {
-    vDragging = false;
-    canvas.classList.remove('dragging');
-  });
+  window.addEventListener('mouseup', function(){ vDrag=false; canvas.style.cursor='grab'; });
 
-  // Touch pinch zoom + pan
-  canvas.addEventListener('touchstart', e => {
-    vTouches = Array.from(e.touches);
-    if(vTouches.length === 1) {
-      vLastX = vTouches[0].clientX; vLastY = vTouches[0].clientY;
-    } else if(vTouches.length === 2) {
-      vLastDist = Math.hypot(vTouches[0].clientX - vTouches[1].clientX, vTouches[0].clientY - vTouches[1].clientY);
-    }
-  }, { passive: true });
-
-  canvas.addEventListener('touchmove', e => {
+  /* Touch pinch+pan */
+  canvas.addEventListener('touchstart', function(e){
+    var t=e.touches;
+    if(t.length===1){ vLX=t[0].clientX; vLY=t[0].clientY; }
+    if(t.length===2){ vLDist=Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY); }
+  },{passive:true});
+  canvas.addEventListener('touchmove', function(e){
     e.preventDefault();
-    const touches = Array.from(e.touches);
-    if(touches.length === 1 && vScale > 1) {
-      vX += touches[0].clientX - vLastX; vY += touches[0].clientY - vLastY;
-      vLastX = touches[0].clientX; vLastY = touches[0].clientY;
-      clampPan(); applyTransform();
-    } else if(touches.length === 2) {
-      const dist = Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
-      const ratio = dist / (vLastDist || dist);
-      vScale = Math.max(0.3, Math.min(5, vScale * ratio));
-      vLastDist = dist; clampPan(); applyTransform();
+    var t=e.touches;
+    if(t.length===1 && vScale>1){
+      vX+=t[0].clientX-vLX; vY+=t[0].clientY-vLY;
+      vLX=t[0].clientX; vLY=t[0].clientY; viewerClamp(); viewerApply();
+    } else if(t.length===2){
+      var d=Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+      vScale=Math.max(0.25,Math.min(6,vScale*(d/(vLDist||d)))); vLDist=d;
+      viewerClamp(); viewerApply();
     }
-  }, { passive: false });
+  },{passive:false});
 
-  // Double tap / double click to reset or zoom
-  let lastTap = 0;
-  canvas.addEventListener('dblclick', e => {
-    if(vScale > 1.1) { vScale = 1; vX = 0; vY = 0; }
-    else { vScale = 2.5; }
-    applyTransform();
-  });
-  canvas.addEventListener('touchend', e => {
-    const now = Date.now();
-    if(now - lastTap < 300) {
-      if(vScale > 1.1) { vScale = 1; vX = 0; vY = 0; }
-      else { vScale = 2.5; }
-      applyTransform();
-    }
-    lastTap = now;
+  /* Double tap/click to toggle zoom */
+  var lastTap=0;
+  canvas.addEventListener('dblclick',function(){ vScale>1.1?viewerReset():(vScale=2.5,viewerApply()); });
+  canvas.addEventListener('touchend', function(){
+    var now=Date.now();
+    if(now-lastTap<300){ vScale>1.1?viewerReset():(vScale=2.5,viewerApply()); }
+    lastTap=now;
   });
 
-  // Click outside (on dark area) to close when not zoomed
-  viewer.addEventListener('click', e => {
-    if(e.target === viewer && vScale <= 1.05) {
-      viewer.classList.add('H'); img.src = ''; vScale = 1; vX = 0; vY = 0;
-    }
+  /* Click background to close if not zoomed */
+  viewer.addEventListener('click', function(e){
+    if(e.target===viewer && vScale<=1.05) closeViewer();
   });
 });
 
-/* ── PROFILE PHOTOS ── */
-let newProfilePhoto = null;
+/* Keyboard: Escape to close everything, Ctrl+K for search */
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){
+    closeViewer();
+    document.querySelectorAll('.ov').forEach(function(o){ o.classList.add('H'); });
+  }
+  if((e.ctrlKey||e.metaKey) && e.key==='k'){
+    e.preventDefault();
+    var s=document.getElementById('msg-search'); if(s){s.focus();s.select();}
+  }
+});
 
-document.addEventListener('DOMContentLoaded', () => {
-  const dropEl = document.getElementById('uphoto-drop');
-  const inpEl = document.getElementById('uphoto-inp');
-  if(dropEl && inpEl) {
-    dropEl.addEventListener('click', () => inpEl.click());
-    inpEl.addEventListener('change', function() {
-      const f = this.files[0]; if(!f) return;
-      newProfilePhoto = f;
-      const r = new FileReader();
-      r.onload = ev => {
-        const prev = document.getElementById('uphoto-prev');
-        const txt = document.getElementById('uphoto-txt');
-        prev.src = ev.target.result;
-        prev.style.display = 'block';
-        txt.style.display = 'none';
-      };
-      r.readAsDataURL(f);
-      this.value = '';
+/* ══ 3. @MENTION AUTOCOMPLETE ══ */
+window.addEventListener('DOMContentLoaded', function(){
+  var msgin=document.getElementById('msgin');
+  var popup=document.getElementById('mention-popup');
+  if(!msgin||!popup) return;
+
+  msgin.addEventListener('input', function(){
+    var val=this.value, cursor=this.selectionStart;
+    var before=val.substring(0,cursor);
+    var m=before.match(/@(\w*)$/);
+    if(!m){ popup.classList.add('H'); return; }
+
+    var q=m[1].toLowerCase();
+    var B=window.BASE||{};
+    var matches=Object.entries(B).filter(function(e){
+      return e[1].display.toLowerCase().indexOf(q)===0 || e[0].indexOf(q)===0;
     });
-  }
-});
+    if(!matches.length){ popup.classList.add('H'); return; }
 
-// Override openEditUser to also load photo
-const _origOpenEditUser = typeof openEditUser !== 'undefined' ? openEditUser : null;
-function openEditUserPatched(key) {
-  newProfilePhoto = null;
-  const prev = document.getElementById('uphoto-prev');
-  const txt = document.getElementById('uphoto-txt');
-  if(prev){ prev.src=''; prev.style.display='none'; }
-  if(txt) txt.style.display='block';
-
-  // Load existing photo
-  const p = typeof prof === 'function' ? prof(key) : {};
-  if(p.photo && prev){ prev.src = p.photo; prev.style.display='block'; if(txt) txt.style.display='none'; }
-
-  // Show camera edit on profile modal for own profile
-  const editBtn = document.getElementById('pp-ava-edit-btn');
-  if(editBtn) editBtn.classList.toggle('H', key !== (typeof ME !== 'undefined' ? ME.key : ''));
-
-  if(_origOpenEditUser) _origOpenEditUser(key);
-}
-// Replace reference
-window.openEditUser = openEditUserPatched;
-
-// Override saveUser to include photo
-const _origSaveUser = typeof saveUser === 'function' ? saveUser : null;
-window._saveUserWithPhoto = async function() {
-  if(newProfilePhoto && typeof resize64 === 'function' && typeof ME !== 'undefined') {
-    try {
-      const photo = await resize64(newProfilePhoto, 200, 0.82);
-      if(photo) {
-        const key = document.getElementById('edit-ukey').value;
-        if(key && typeof db !== 'undefined') {
-          await db.collection('profiles').doc(key).set({ photo }, { merge: true });
-          // Update avatars live
-          if(key === ME.key) {
-            ME.photo = photo;
-            updateAllAvatars(key, photo);
-          }
-        }
-      }
-    } catch(e) { console.warn('Photo save error', e); }
-    newProfilePhoto = null;
-  }
-};
-
-// Intercept save button
-document.addEventListener('DOMContentLoaded', () => {
-  const saveBtn = document.getElementById('btn-save-user');
-  if(saveBtn) {
-    saveBtn.addEventListener('click', async () => {
-      await window._saveUserWithPhoto();
-    }, true); // capture = true so it runs first
-  }
-});
-
-function updateAllAvatars(key, photoUrl) {
-  // Update all ava elements for this user
-  document.querySelectorAll(`[data-profile="${key}"]`).forEach(el => {
-    if(el.classList.contains('ava')) {
-      el.style.backgroundImage = `url('${photoUrl}')`;
-      el.style.backgroundSize = 'cover';
-      el.textContent = '';
-    }
-  });
-  // Update topbar
-  if(typeof ME !== 'undefined' && key === ME.key) {
-    const hava = document.getElementById('hava');
-    if(hava) {
-      hava.style.backgroundImage = `url('${photoUrl}')`;
-      hava.style.backgroundSize = 'cover';
-      hava.textContent = '';
-    }
-  }
-}
-
-/* ── @MENTION AUTOCOMPLETE ── */
-document.addEventListener('DOMContentLoaded', () => {
-  const msgin = document.getElementById('msgin');
-  const popup = document.getElementById('mention-popup');
-  if(!msgin || !popup) return;
-
-  msgin.addEventListener('input', function() {
-    const val = this.value;
-    const cursor = this.selectionStart;
-    const textBefore = val.substring(0, cursor);
-    const atMatch = textBefore.match(/@(\w*)$/);
-
-    if(!atMatch) { popup.classList.add('H'); return; }
-
-    const query = atMatch[1].toLowerCase();
-    const BASE_LOCAL = typeof BASE !== 'undefined' ? BASE : {};
-    const matches = Object.entries(BASE_LOCAL).filter(([k, u]) =>
-      u.display.toLowerCase().startsWith(query) || k.startsWith(query)
-    );
-
-    if(!matches.length) { popup.classList.add('H'); return; }
-
-    popup.innerHTML = '';
-    matches.forEach(([key, ud]) => {
-      const p = typeof prof === 'function' ? prof(key) : ud;
-      const item = document.createElement('div');
-      item.className = 'mention-item';
-      item.innerHTML = `<div class="ava a24" style="background:${p.color};color:#fff;flex-shrink:0;">${p.display[0]}</div><span>${p.display}</span><span style="font-size:.64rem;color:var(--w4);margin-left:auto">@${key}</span>`;
-      item.addEventListener('mousedown', e => {
+    popup.innerHTML='';
+    matches.forEach(function(pair){
+      var key=pair[0], ud=pair[1];
+      var p=window.prof?window.prof(key):ud;
+      var item=document.createElement('div');
+      item.className='mention-item';
+      item.innerHTML='<div class="ava a24" style="background:'+p.color+';color:#fff;flex-shrink:0;">'+p.display[0]+'</div><span>'+p.display+'</span><span style="font-size:.64rem;color:var(--w4);margin-left:auto">@'+key+'</span>';
+      item.addEventListener('mousedown', function(e){
         e.preventDefault();
-        const before = textBefore.replace(/@\w*$/, '@' + ud.display + ' ');
-        const after = val.substring(cursor);
-        msgin.value = before + after;
-        msgin.setSelectionRange(before.length, before.length);
-        popup.classList.add('H');
-        msgin.focus();
+        var repl=before.replace(/@\w*$/,'@'+ud.display+' ')+val.substring(cursor);
+        msgin.value=repl;
+        var pos=before.replace(/@\w*$/,'@'+ud.display+' ').length;
+        msgin.setSelectionRange(pos,pos);
+        popup.classList.add('H'); msgin.focus();
       });
       popup.appendChild(item);
     });
     popup.classList.remove('H');
-    // Position popup
-    popup.style.bottom = '100%';
-    popup.style.left = '0';
-    popup.style.marginBottom = '.3rem';
   });
-
-  msgin.addEventListener('blur', () => { setTimeout(() => popup.classList.add('H'), 200); });
-  msgin.addEventListener('keydown', e => { if(e.key === 'Escape') popup.classList.add('H'); });
+  msgin.addEventListener('blur', function(){ setTimeout(function(){ popup.classList.add('H'); },180); });
+  msgin.addEventListener('keydown', function(e){ if(e.key==='Escape') popup.classList.add('H'); });
 });
 
-/* ── IMPROVED MENTION RENDERING IN MESSAGES ── */
-function renderMentions(html) {
-  const BASE_LOCAL = typeof BASE !== 'undefined' ? BASE : {};
-  return html.replace(/@([A-Za-z]+)/g, (match, name) => {
-    const found = Object.values(BASE_LOCAL).find(u => u.display.toLowerCase() === name.toLowerCase());
-    if(found) return `<span class="mention" style="color:${found.color||'var(--red)'}">@${name}</span>`;
+/* ══ 4. RENDER @MENTIONS IN MESSAGES (patch highlightText) ══ */
+var _ht = window.highlightText;
+window.highlightText = function(html){
+  var result = _ht ? _ht(html) : html;
+  var B = window.BASE||{};
+  result = result.replace(/@([A-Za-záéíóúÁÉÍÓÚñÑ]+)/g, function(match, name){
+    var found=null;
+    Object.entries(B).forEach(function(pair){
+      if(pair[1].display.toLowerCase()===name.toLowerCase()) found=pair[1];
+    });
+    if(found) return '<span class="mention" style="color:'+(found.color||'var(--red)')+'">@'+name+'</span>';
     return match;
   });
-}
-
-/* Patch renderMsg to use renderMentions */
-const _origHighlight = typeof highlightText === 'function' ? highlightText : null;
-window.highlightText = function(html) {
-  let result = _origHighlight ? _origHighlight(html) : html;
-  result = renderMentions(result);
   return result;
 };
 
-/* ── NOTIFICATION SOUND (soft beep) ── */
-let lastNotifCount = 0;
-function playNotifSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.type = 'sine'; o.frequency.setValueAtTime(880, ctx.currentTime);
-    g.gain.setValueAtTime(0.08, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.3);
-  } catch(e) {}
-}
+/* ══ 5. PROFILE PHOTOS ══ */
+var _newPhoto = null;
 
-// Watch for new unread notifications
-const _origUpdateNavBadge = typeof updateNavBadge === 'function' ? updateNavBadge : null;
-window.updateNavBadge = function(type, count) {
-  if(type === 'notif' && count > lastNotifCount && lastNotifCount !== 0) {
-    playNotifSound();
+window.addEventListener('DOMContentLoaded', function(){
+  var drop=document.getElementById('uphoto-drop');
+  var inp=document.getElementById('uphoto-inp');
+  if(drop&&inp){
+    drop.addEventListener('click', function(){ inp.click(); });
+    inp.addEventListener('change', function(){
+      var f=this.files[0]; if(!f) return; _newPhoto=f;
+      var r=new FileReader();
+      r.onload=function(ev){
+        var prev=document.getElementById('uphoto-prev');
+        var txt=document.getElementById('uphoto-txt');
+        if(prev){ prev.src=ev.target.result; prev.style.display='block'; }
+        if(txt) txt.style.display='none';
+        /* Preview also in the pview ava */
+        var pav=document.getElementById('uprev-ava');
+        if(pav){ pav.style.backgroundImage="url('"+ev.target.result+"')"; pav.style.backgroundSize='cover'; pav.textContent=''; }
+      };
+      r.readAsDataURL(f);
+      this.value='';
+    });
   }
-  if(type === 'notif') lastNotifCount = count;
-  if(_origUpdateNavBadge) _origUpdateNavBadge(type, count);
+});
+
+/* Intercept saveUser to also save photo */
+var _origSaveUserBtn=null;
+window.addEventListener('DOMContentLoaded', function(){
+  var sb=document.getElementById('btn-save-user');
+  if(!sb) return;
+  sb.addEventListener('click', async function(ev){
+    if(!_newPhoto||typeof window.resize64!=='function') return;
+    try{
+      var photo=await window.resize64(_newPhoto,240,0.85);
+      var key=document.getElementById('edit-ukey').value;
+      if(photo&&key&&typeof db!=='undefined'){
+        await db.collection('profiles').doc(key).set({photo:photo},{merge:true});
+        /* Refresh PROFILES cache */
+        if(window.PROFILES) window.PROFILES[key]=Object.assign(window.PROFILES[key]||{},{photo:photo});
+        /* Update own topbar */
+        if(window.ME&&window.ME.key===key){
+          window.ME.photo=photo;
+          var hava=document.getElementById('hava');
+          if(hava){ hava.style.backgroundImage="url('"+photo+"')"; hava.style.backgroundSize='cover'; hava.style.backgroundRepeat='no-repeat'; hava.textContent=''; }
+        }
+      }
+      _newPhoto=null;
+    }catch(e){ console.warn('Photo save:',e); }
+  }, true); // capture phase so runs before existing handler
+});
+
+/* Load profile photo when opening profile modal */
+var _origOpenProfile = window.openProfile;
+window.openProfile = function(key){
+  if(_origOpenProfile) _origOpenProfile(key);
+  /* Set photo in profile modal avatar */
+  var P=(window.PROFILES&&window.PROFILES[key])||{};
+  var av=document.getElementById('pp-ava');
+  if(av&&P.photo){
+    av.style.backgroundImage="url('"+P.photo+"')";
+    av.style.backgroundSize='cover'; av.style.backgroundRepeat='no-repeat';
+    av.textContent='';
+  } else if(av){
+    av.style.backgroundImage=''; av.style.backgroundSize='';
+    /* text already set by original */
+  }
+  /* Show edit camera if own profile or admin */
+  var editBtn=document.getElementById('pp-ava-edit-btn');
+  if(editBtn){
+    var canEdit=window.ME&&(key===window.ME.key||(window.ME.role==='Administrador'));
+    editBtn.classList.toggle('H',!canEdit);
+    editBtn.onclick=function(){ closeM('m-profile'); openEditUser(key); };
+  }
 };
 
-/* ── TYPING INDICATOR ── */
-let typingTimeout = null;
-document.addEventListener('DOMContentLoaded', () => {
-  const msgin = document.getElementById('msgin');
-  if(!msgin || typeof db === 'undefined') return;
-  msgin.addEventListener('input', () => {
-    if(!window.ME) return;
-    db.collection('typing').doc(window.ME.key).set({ display: window.ME.key, ts: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(() => {});
-    clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => {
-      if(window.ME) db.collection('typing').doc(window.ME.key).delete().catch(() => {});
-    }, 3000);
+/* Load photo when opening edit modal */
+var _origOpenEditUser = window.openEditUser;
+window.openEditUser = function(key){
+  _newPhoto=null;
+  var prev=document.getElementById('uphoto-prev');
+  var txt=document.getElementById('uphoto-txt');
+  if(prev){prev.style.display='none'; prev.src='';}
+  if(txt) txt.style.display='block';
+  var P=(window.PROFILES&&window.PROFILES[key])||{};
+  if(P.photo&&prev){
+    prev.src=P.photo; prev.style.display='block';
+    if(txt) txt.style.display='none';
+  }
+  if(_origOpenEditUser) _origOpenEditUser(key);
+};
+
+/* Apply photos to message avatars */
+var _origRenderPresence = window.renderPresence;
+window.renderPresence = function(){
+  if(_origRenderPresence) _origRenderPresence();
+  /* Add photos to presence list */
+  document.querySelectorAll('.emp-row').forEach(function(row){
+    // Photos applied when renderPresence creates them already
+  });
+};
+
+/* ══ 6. NOTIFICATION SOUND (soft ping) ══ */
+var _lastNotifCount=0;
+var _origUpdateNavBadge=window.updateNavBadge;
+window.updateNavBadge=function(type,count){
+  if(type==='notif'&&count>_lastNotifCount&&_lastNotifCount>=0){
+    try{
+      var ctx=new(window.AudioContext||window.webkitAudioContext)();
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type='sine';o.frequency.value=880;
+      g.gain.setValueAtTime(0.07,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+      o.start();o.stop(ctx.currentTime+0.3);
+    }catch(e){}
+  }
+  if(type==='notif') _lastNotifCount=count;
+  if(_origUpdateNavBadge) _origUpdateNavBadge(type,count);
+};
+
+/* ══ 7. TYPING INDICATOR ══ */
+var _typingTO=null;
+window.addEventListener('DOMContentLoaded', function(){
+  var msgin=document.getElementById('msgin');
+  if(!msgin) return;
+  msgin.addEventListener('input', function(){
+    if(!window.ME||typeof db==='undefined') return;
+    db.collection('typing').doc(window.ME.key).set(
+      {display:window.ME.display,color:window.ME.color,ts:firebase.firestore.FieldValue.serverTimestamp()},
+      {merge:true}
+    ).catch(function(){});
+    clearTimeout(_typingTO);
+    _typingTO=setTimeout(function(){
+      if(window.ME) db.collection('typing').doc(window.ME.key).delete().catch(function(){});
+    },3000);
+  });
+  /* Listen for typing from others */
+  var typingEl=document.getElementById('typing-indicator');
+  if(!typingEl) return;
+});
+
+/* ══ 8. IMPROVED SEND — Enter sends, Shift+Enter newline ══ */
+/* (already handled in main code, this is backup) */
+
+/* ══ 9. SWIPE TO CLOSE MODALS ON MOBILE ══ */
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.mh').forEach(function(handle){
+    var modal=handle.parentElement;
+    var startY=0, moved=0;
+    handle.addEventListener('touchstart',function(e){ startY=e.touches[0].clientY; },{passive:true});
+    handle.addEventListener('touchmove',function(e){
+      moved=e.touches[0].clientY-startY;
+      if(moved>0) modal.style.transform='translateY('+moved+'px)';
+    },{passive:true});
+    handle.addEventListener('touchend',function(){
+      modal.style.transform='';
+      if(moved>80){ var ov=modal.parentElement; if(ov&&ov.classList.contains('ov')) ov.classList.add('H'); }
+      moved=0;
+    },{passive:true});
   });
 });
 
-/* ── RELATIVE TIMESTAMPS ── */
-function relTime(seconds) {
-  const d = Math.floor((Date.now() / 1000) - seconds);
-  if(d < 5) return 'ahora';
-  if(d < 60) return d + 's';
-  if(d < 3600) return Math.floor(d / 60) + 'm';
-  if(d < 86400) return Math.floor(d / 3600) + 'h';
-  return new Date(seconds * 1000).toLocaleDateString('es-DO', { day: '2-digit', month: 'short' });
-}
-
-/* ── KEYBOARD SHORTCUT: Ctrl+K opens search ── */
-document.addEventListener('keydown', e => {
-  if((e.ctrlKey || e.metaKey) && e.key === 'k') {
-    e.preventDefault();
-    const search = document.getElementById('msg-search');
-    if(search) { search.focus(); search.select(); }
-  }
-  if(e.key === 'Escape') {
-    document.querySelectorAll('.ov').forEach(o => o.classList.add('H'));
-    const viewer = document.getElementById('viewer');
-    if(viewer && !viewer.classList.contains('H')) { viewer.classList.add('H'); }
-  }
+/* ══ 10. AUTO-RESIZE TEXTAREA ON LOAD ══ */
+window.addEventListener('DOMContentLoaded', function(){
+  var msgin=document.getElementById('msgin');
+  if(msgin) msgin.style.minHeight='44px';
 });
 
-/* ── AUTO-RELOAD ON FOCUS (stay fresh) ── */
-let lastReload = Date.now();
-document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible' && Date.now() - lastReload > 3600000) {
-    lastReload = Date.now();
-  }
-});
-
-/* ── PROFILE PHOTO IN AVATARS (from Firestore) ── */
-// Override prof() to include photo
-const _origProfFn = typeof window.prof === 'function' ? window.prof : null;
-// We'll patch after login when PROFILES is available
-document.addEventListener('DOMContentLoaded', () => {
-  // Patch renderPresence to show photos in avatars
-  const _origRenderPresence = typeof window.renderPresence === 'function' ? window.renderPresence : null;
-});
-
-console.log('✅ Kindo Mall patches loaded: theme, zoom-viewer, profile-photos, @mentions, sounds, shortcuts');
+console.log('%c✅ Kindo Mall features loaded', 'color:#cc0000;font-weight:bold;font-size:12px');
 </script>
+
 </body>
+</html>
